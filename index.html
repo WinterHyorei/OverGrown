@@ -7,7 +7,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OverGrown - by WinterHyorei</title>
- <style>
+<style>
     body { 
       background-image: url('overgrown.png');
       background-size: cover;
@@ -79,8 +79,56 @@
   margin-top: 40px;
   margin-bottom: 10px;
   text-transform: uppercase;
-  text-shadow: 0 0 15px rgba(0, 230, 255, 0.9);
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.9);
 }
+
+/* bottom marquee only */
+.bottom-marquee {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  color: "8C1007";
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  text-shadow: 0 0 6px yellow, 0 0 12px rgba(0,255,0,0.6);
+  animation: flicker 3s infinite ease-in-out;
+  white-space: nowrap;
+  background: rgba(0, 25, 0, 0.3);
+  padding: 8px 0;
+}
+
+/* fading edges to create the "cutoff" effect */
+.bottom-marquee::before,
+.bottom-marquee::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.bottom-marquee::before {
+  left: 0;
+  background: linear-gradient(to right, black, transparent);
+}
+
+.bottom-marquee::after {
+  right: 0;
+  background: linear-gradient(to left, black, transparent);
+}
+
+/* flicker animation for CRT feel */
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.6;
+  }
+}
+
 
   </style>
 </head>
@@ -93,11 +141,11 @@
 	</marquee>
 	<br><br>
 
-   
+   <br><br><br><br>
     <h2 class="section-title">OverGrown</h2>
  <div class="subtitle">When humanity’s hunger for control eats itself.</div><br><br>
 
-	
+	<br><br>
     <h2>ABOUT</h2>
 	<hr>
 	<p>
@@ -132,7 +180,122 @@
     </p>
 	<br><br>
 	<b><center><font size=5 color=red>UNTIL IT WASNT</font></center>
+	<br><br><br>
+	<h2>7 PANDEMICS</h2>
 	<hr>
+	
+	<div class="accordion">
+
+  <button class="accordion-btn">Flora Ultima</button>
+  <div class="accordion-content">
+    <p>Plant life bioengineered to spread no matter what. Made to take over the barren world of OverGrown, after the inevitable plant life exinction. Staying true to its roots, it now grows uncontrollably outgrowing its surroundings causing massive infrastructure damage and hosting wildlife to the point of over population.</p>
+  </div>
+
+  <button class="accordion-btn">Crimson Plague</button>
+  <div class="accordion-content">
+    <p>Hungry for cacncer meat? world hunger tripled and humanity needed a substitute for meat, developing canned processed food out of multiplying cacncer injected into animals. humanity’s gluttony overconsuming cancer meat causes assimilation mutating them into ever spreading blob of flesh and tissue. </p>
+  </div>
+
+  <button class="accordion-btn">The Mesh</button>
+  <div class="accordion-content">
+    <p>Automation was one of the most successful progressions humanity accomplished. Ai integrated into daily life it was inevitable, humans abused the system to the point it now hungers for flesh. fusing with the flesh hijacking the brain, it now uses the human body as a vessel to spread.</p>
+  </div>
+
+  <button class="accordion-btn">Primal Wail</button>
+  <div class="accordion-content">
+    <p>Once a drug to induce Artificial Confidence Boost mutated into paranoia, capgras syndrome, and tribalism. The ones infected with the PrimalWail loses all morality and guidance replaced by the 3 primal desires being MURDER, LUST, and GLUTTONY which varries per person. They now live in isolation hunting down those uninfected by the Wail, seeing them as nothing more than prey.</p>
+  </div>
+
+  <button class="accordion-btn">Apex Strain</button>
+  <div class="accordion-content">
+    <p>A shortcut to human evolution. Humanities artificial solution to forced adaptability, once used to amplify the work force and military. The mutation turned against humanity after gaining consciousness. Subjecting its users into forced evolution through mutaion, as it warps the users body into monstrous forms. Feeding on white blood cells in the blood to act as pain killer to the constant pain and agony.</p>
+  </div>
+
+  <button class="accordion-btn">Lumen Syndrome</button>
+  <div class="accordion-content">
+    <p>A psychological collapse of the collective human consciousness. What once was an artificial solution to Brainrot turned into unnatural intellect boost through exposure to sunlight. Victims become highly capable thinkers, strategists, tacticians, and oracles inexchange of freedom from the light as over exposure to sunlight causes severe suicidal tendencies. </p>
+  </div>
+
+  <button class="accordion-btn">Ossyx Conversion</button>
+  <div class="accordion-content">
+    <p>The final experiment — an attempt to prolong life through crystal stasis. Due to the decline in population caused by world hunger, Australlia unleashed Ossyx to preserve its remaning population. </p>
+  </div>
+
+</div>
+
+<script>
+  const buttons = document.querySelectorAll(".accordion-btn");
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", function() {
+      const content = this.nextElementSibling;
+
+      // Close all others first
+      buttons.forEach(other => {
+        if (other !== this) {
+          other.classList.remove("active");
+          other.nextElementSibling.style.display = "none";
+        }
+      });
+
+      // Toggle this one
+      const isActive = this.classList.contains("active");
+      this.classList.toggle("active", !isActive);
+      content.style.display = isActive ? "none" : "block";
+    });
+  });
+</script>
+
+<style>
+.accordion {
+  margin-top: 20px;
+}
+
+.accordion-btn {
+  background: rgba(0, 0, 0, 0.6);
+  color: #A8FBD3;
+  cursor: pointer;
+  padding: 12px 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 18px;
+  font-weight: bold;
+  transition: 0.3s;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  text-shadow: 0 0 8px cyan;
+}
+
+.accordion-btn:hover {
+  background: rgba(0, 255, 255, 0.2);
+  color: white;
+}
+
+.accordion-btn.active {
+  color: cyan;
+  text-shadow: 0 0 10px red, 0 0 20px cyan;
+}
+
+.accordion-content {
+  display: none;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ccc;
+  border-left: 3px solid cyan;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+</style>
+	
+	
 	<br><br>
 	
 	</b><br><br><br><br>
@@ -153,8 +316,7 @@
   
   
   
-  <marquee behavior="bounce">
-	&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;	&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;<br>
+<marquee class="bottom-marquee" scrollamount="3" behavior="scroll" direction="left">	&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;	&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;<br>
 	///////     ///////     /////// | THIS IS ALL WE HAVE FOR NOW |     ////////     ///////     ///////     | INTELLECTUAL PROPERTY OF WINTERHYOREI |     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     | FOLLOW MY SOCIALS = Facebook.com/WinterHyorei |     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     | FOLLOW MY SOCIALS = Youtube.com/WinterHyorei |     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     <br>
     &#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;    &#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;
 
