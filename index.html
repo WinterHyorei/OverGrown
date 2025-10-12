@@ -5,6 +5,9 @@
 <meta name="google-site-verification" content="xdbozytPqz_4hUetvsJf8hjndncR4ZBi5y3yzbySkho" />
 <link rel="icon" type="image/png" href="favicon.png">  
   <meta charset="UTF-8">
+  <!-- Makes the page scale correctly on all mobile screens -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OverGrown - by WinterHyorei</title>
 <style>
@@ -129,6 +132,61 @@
   }
 }
 
+	/* ✦ MOBILE OPTIMIZATION PATCH ✦ */
+
+/* Let the overlay scale properly instead of staying fixed width */
+.overlay {
+  width: 90%;
+  max-width: 800px;
+  margin: 60px auto;
+}
+
+/* Prevent horizontal scrolling on mobile Chrome */
+body {
+  overflow-x: hidden;
+}
+
+/* Make all images scale dynamically */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive text and layout adjustments */
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+  }
+
+  .overlay {
+    padding: 25px;
+    margin: 30px auto;
+  }
+
+  .section-title {
+    font-size: 36px;
+    text-shadow: 0 0 10px rgba(0,230,255,0.8);
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  p, li {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .accordion {
+    font-size: 16px;
+    padding: 12px 15px;
+  }
+
+  marquee {
+    font-size: 12px;
+  }
+}
+
 
   </style>
 </head>
@@ -244,6 +302,13 @@
       content.style.display = isActive ? "none" : "block";
     });
   });
+
+/* Adds instant tap response for Chrome mobile users */
+for (let i = 0; i < acc.length; i++) {
+  acc[i].addEventListener("touchstart", togglePanel);
+}
+
+	
 </script>
 
 <style>
