@@ -376,15 +376,18 @@ for (let i = 0; i < acc.length; i++) {
   
   
   
-  <!-- Visitor Counter -->
+ <!-- Visitor Counter -->
 <div style="text-align:center; margin-top: 50px;">
   <img src="https://visitor-badge.laobi.icu/badge?page_id=winterhyorei.overgrown" alt="Visitor count badge">
   <p style="font-family: 'Courier New', monospace; color: #A8FBD3; font-size: 14px;">
     // LIVE TRAFFIC: Recording Visitors to OverGrown Terminal
   </p>
-</div>
 
- <!-- "Real visitor" button -->
+  <p id="verified-count" style="font-family:'Courier New',monospace; color:#0ff; font-size:14px;">
+    // VERIFIED HUMANS: loading...
+  </p>
+
+  <!-- "Real visitor" button -->
   <button id="verify-btn" style="
       background:#0ff;
       color:#000;
@@ -421,12 +424,11 @@ for (let i = 0; i < acc.length; i++) {
      Verify once to unlock permanent archive access 
   </p>
 </div>
- 
- 
- <script>
+
+<script>
 const BIN_ID = "68f0941f43b1c97be96ab73c";
 const API_KEY = "$2a$10$seLbS1mJZFbAirLw173h4OJap610I0SXhAXeCphc3V6tORRcdB/J2";
-const BIN_URL = https://api.jsonbin.io/v3/b/68f0941f43b1c97be96ab73c{BIN_ID}`;
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 const countDisplay = document.getElementById('verified-count');
 const verifyBtn = document.getElementById('verify-btn');
@@ -463,7 +465,7 @@ verifyBtn.addEventListener('click', () => {
     .then(res => res.json())
     .then(data => {
       const newCount = data.record.realVisitors + 1;
-      return fetch(`${BIN_URL}`, {
+      return fetch(BIN_URL, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
