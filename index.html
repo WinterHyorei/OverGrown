@@ -383,111 +383,23 @@ for (let i = 0; i < acc.length; i++) {
     // LIVE TRAFFIC: Recording Visitors to OverGrown Terminal
   </p>
 
-  <p id="verified-count" style="font-family:'Courier New',monospace; color:#0ff; font-size:14px;">
-    // VERIFIED HUMANS: loading...
-  </p>
+<!-- Direct Access Button -->
+    <div style="text-align:center; margin-top: 20px;">
+      <button onclick="window.location.href='OverGrownArchiveTerminal.html'" style="
+        background:#0ff;
+        color:#000;
+        font-family:'Impact',sans-serif;
+        font-size:18px;
+        border:none;
+        border-radius:8px;
+        padding:12px 24px;
+        cursor:pointer;
+        box-shadow:0 0 10px #0ff;
+        transition:all 0.3s ease;">
+        ACCESS LIVE ARCHIVE
+      </button>
+    </div>
 
-  <!-- "Real visitor" button -->
-  <button id="verify-btn" style="
-      background:#0ff;
-      color:#000;
-      font-family:'Impact',sans-serif;
-      font-size:16px;
-      border:none;
-      border-radius:5px;
-      padding:10px 20px;
-      cursor:pointer;
-      box-shadow:0 0 10px #0ff;
-      transition:all 0.3s ease;">
-    I'M A REAL VISITOR
-  </button>
-
-  <!-- Hidden archive access button -->
-  <button id="archive-btn" style="
-      display:none;
-      background:#f00;
-      color:#fff;
-      font-family:'Impact',sans-serif;
-      font-size:16px;
-      border:none;
-      border-radius:5px;
-      padding:10px 20px;
-      cursor:pointer;
-      box-shadow:0 0 10px red;
-      margin-top:10px;
-      transition:all 0.3s ease;"
-    onclick="window.location.href='OverGrownArchiveTerminal.html'">
-    ACCESS LIVE ARCHIVE
-  </button>
-
-  <p style="font-family:'Courier New',monospace; color:#A8FBD3; font-size:14px; margin-top:10px;">
-     Verify once to unlock permanent archive access 
-  </p>
-</div>
-
-<script>
-const BIN_ID = "68f0941f43b1c97be96ab73c";
-const API_KEY = "$2a$10$EGp4ZjYsxynXJTEsibRFY.zBO0nf5wOMokhbc4WcdVNK64ZqOWWY.";
-const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-
-
-const countDisplay = document.getElementById('verified-count');
-const verifyBtn = document.getElementById('verify-btn');
-const archiveBtn = document.getElementById('archive-btn');
-
-// Load current count from JSONBin
-fetch(BIN_URL, {
-  headers: { 'X-Master-Key': API_KEY }
-})
-  .then(res => res.json())
-  .then(data => {
-    const count = data.record.realVisitors;
-    countDisplay.textContent = `// VERIFIED HUMANS: ${count}`;
-  })
-  .catch(() => {
-    countDisplay.textContent = "// VERIFIED HUMANS: unavailable";
-  });
-
-// Check if user already verified
-if (localStorage.getItem('verifiedVisitor') === 'true') {
-  verifyBtn.style.display = 'none';
-  archiveBtn.style.display = 'inline-block';
-}
-
-// Button logic
-verifyBtn.addEventListener('click', () => {
-  if (localStorage.getItem('verifiedVisitor') === 'true') return;
-
-  // Increase counter
-  fetch(BIN_URL, {
-    method: 'GET',
-    headers: { 'X-Master-Key': API_KEY }
-  })
-    .then(res => res.json())
-    .then(data => {
-      const newCount = data.record.realVisitors + 1;
-      return fetch(BIN_URL, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': API_KEY
-        },
-        body: JSON.stringify({ realVisitors: newCount })
-      });
-    })
-    .then(() => {
-      localStorage.setItem('verifiedVisitor', 'true');
-      verifyBtn.style.display = 'none';
-      archiveBtn.style.display = 'inline-block';
-      countDisplay.textContent = "// VERIFIED HUMANS: updated!";
-    })
-    .catch(() => {
-      countDisplay.textContent = "// ERROR: could not verify.";
-    });
-});
-</script>
-
-	
   
   
   
