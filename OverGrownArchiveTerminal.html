@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OverGrown // Archive Terminal</title>
+  <style>
+    body {
+      background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+      color: #A8FBD3;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 40px;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .scanlines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        rgba(255, 255, 255, 0.03) 0px,
+        rgba(0, 0, 0, 0.03) 2px
+      );
+      pointer-events: none;
+      z-index: 1000;
+      mix-blend-mode: overlay;
+    }
+
+    .terminal-box {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid #0ff;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 900px;
+      margin: 60px auto;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+    }
+
+    h1 {
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff, 0 0 25px cyan;
+      font-size: 32px;
+      letter-spacing: 2px;
+    }
+
+    .entry {
+      text-align: left;
+      margin: 30px auto;
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-left: 3px solid #f00;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .entry:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+    }
+
+    .entry h2 {
+      color: #f00;
+      text-shadow: 0 0 10px red;
+    }
+
+    a {
+      color: #0ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-shadow: 0 0 8px #0ff;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 40px;
+      padding: 10px 20px;
+      background: #0ff;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: 'Impact', sans-serif;
+      text-transform: uppercase;
+      box-shadow: 0 0 15px #0ff;
+      transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+      background: #f00;
+      color: #fff;
+      box-shadow: 0 0 20px red;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="scanlines"></div>
+  <div class="terminal-box">
+    <h1>ACCESS GRANTED // OVERGROWN TERMINAL</h1>
+    <p style="color:#ccc;">Welcome, verified user. You’ve entered the inner archive.</p>
+
+    <div class="entry">
+      <h2>ARCHIVE 01: The ZeroPlague</h2>
+      <p>The virus that started it all — a biological anomaly that transcended infection and rewrote ecosystems. ZeroPlague’s outbreak marked the end of the natural age.</p>
+      <a href="#">[READ FULL DOSSIER]</a>
+    </div>
+
+    <div class="entry">
+      <h2>ARCHIVE 02: The 63 Walls</h2>
+      <p>The fortresses of mankind — built to separate hope from despair. Only thirteen remain operational, each ruled by a faction of the Coalition.</p>
+      <a href="#">[ACCESS BLUEPRINTS]</a>
+    </div>
+
+    <div class="entry">
+      <h2>ARCHIVE 03: The Battle Maidens</h2>
+      <p>Six women — each from a plague-borne wasteland — whose mastery over infection turned survival into transcendence.</p>
+      <a href="#">[VIEW RECORDS]</a>
+    </div>
+
+    <button class="back-button" onclick="window.location.href='index.html'">Return to Main Site</button>
+  </div>
+</body>
+</html>
