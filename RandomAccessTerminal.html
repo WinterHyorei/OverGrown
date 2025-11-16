@@ -270,7 +270,7 @@ button {
 
   <!-- system buttons on right side -->
   <button id="refreshBtn" class="sysBtn">REFRESH</button>
-  <button id="exitBtn" class="sysBtn">EXIT</button>
+
 </div>
 
 
@@ -581,8 +581,9 @@ input.addEventListener("keydown", e => {
   if (e.key === "Enter") runCommand();
 });
 document.getElementById("refreshBtn").onclick = () => location.reload();
-document.getElementById("exitBtn").onclick = () => window.location.href = "index.html";
+
 </script>
 
 </body>
 </html>
+
