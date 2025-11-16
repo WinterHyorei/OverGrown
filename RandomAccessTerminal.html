@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>R.A.T System — Random Access Terminal</title>
+<style>
+:root {
+  --bg: #0a0a0c;
+  --fg: #06ffbc;
+  --accent: #108466;
+  --border: #0d3f31;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: monospace;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main Frame */
+#terminalFrame {
+  border: 3px solid var(--border);
+  margin: 8px;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 70% 30%;
+grid-template-rows: auto 1fr;
+min-height: 0; /* IMPORTANT: allows child to scroll and not stretch */
+  gap: 4px;
+  padding: 6px;
+}
+
+/* Title Banner */
+#title {
+  grid-column: 1 / span 2;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 4px;
+  font-weight: bold;
+}
+
+/* AI Name Plate */
+#aiInfo {
+  border-bottom: 1px solid var(--border);
+  padding: 4px;
+  font-size: 14px;
+}
+
+#aiName {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Screen / Feed */
+#screen {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--accent);
+  padding: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+
+  /* Force screen to stay fixed height inside grid */
+  height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* AI Image */
+#aiImageBox {
+  border: 2px solid var(--accent);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1/1;
+  max-height: 100%; /* prevents grid expansion */
+  overflow: hidden; /* hides overflow from large images */
+}
+
+#aiImage {
+ width: 100%;
+  height: 100%;
+  object-fit: contain; /* ensures no stretch */
+  opacity: 0; /* starts hidden */
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Input bar */
+#inputBar {
+  display: flex;
+  border-top: 2px solid var(--accent);
+  padding: 6px;
+}
+
+#cmdInput {
+  flex: 1;
+  background: #000;
+  color: var(--fg);
+  border: 1px solid var(--accent);
+  padding: 6px;
+}
+
+button {
+  background: var(--accent);
+  border: 1px solid var(--border);
+  color: #000;
+  font-weight: bold;
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+#actionGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 3 RP cols + 1 control col */
+  gap: 4px;
+  margin-top: 6px;
+  padding: 4px;
+  border-top: 2px solid var(--accent);
+}
+
+/* Hidden RP slots (reserved space) */
+.actionBtn {
+  visibility: hidden; /* keep space, not delete */
+  background: #0f3;
+  color: black;
+  font-size: 12px;
+  padding: 6px;
+}
+
+/* Control buttons inside grid (visible) */
+.sysBtn {
+  background: var(--accent);
+  border: 1px solid var(--border);
+  font-weight: bold;
+  padding: 6px;
+  cursor: pointer;
+}
+
+/* Footer Controls */
+#footerControls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+/* ==============================
+   R.A.T MOBILE PATCH — LUMI v1
+   ============================== */
+
+@media (max-width: 900px) {
+
+  /* Make the whole terminal stack instead of side-by-side */
+  #terminalFrame {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto 1fr auto;
+  }
+
+  /* Title spans normally */
+  #title {
+    grid-column: 1;
+    text-align: center;
+    font-size: 18px;
+  }
+
+  /* AI info line */
+  #aiInfo {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  /* AI Image panel becomes smaller & centered */
+  #aiImageBox {
+    max-height: 220px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  #aiImage {
+    object-fit: contain;
+  }
+
+  /* Terminal screen becomes full width */
+  #screen {
+    height: 45vh;
+    max-height: none;
+    font-size: 14px;
+  }
+
+  /* Input bar stacked if needed */
+  #inputBar {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  #cmdInput {
+    width: 100%;
+    font-size: 16px; /* prevents zoom on mobile */
+  }
+
+  button {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  /* RP button grid becomes 3x3 instead of long horizontal */
+  #actionGrid {
+    grid-template-columns: repeat(3, 1fr);
+    padding-bottom: 12px;
+  }
+}
+
+/* ULTRA-SMALL SCREENS (phones under 400px) */
+@media (max-width: 400px) {
+
+  #title {
+    font-size: 16px;
+  }
+
+  #screen {
+    height: 40vh;
+    font-size: 13px;
+  }
+
+  #actionGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div id="terminalFrame">
+
+  <div id="title">▌ RANDOM ACCESS TERMINAL // R.A.T. v3.7 ▌</div>
+
+  <div id="aiInfo">UNIT: <span id="aiName">[Dormant]</span></div>
+  <div></div> <!-- filler -->
+
+  <div id="screen"></div>
+
+  <div id="aiImageBox">
+    <img id="aiImage" src="" alt="">
+  </div>
+
+</div>
+
+<div id="inputBar">
+  <input id="cmdInput" placeholder="> TYPE COMMAND">
+  <button id="sendBtn">SEND</button>
+</div>
+
+<div id="actionGrid">
+  <!-- 9 RP event slots -->
+  <button class="actionBtn">EVT1</button>
+  <button class="actionBtn">EVT2</button>
+  <button class="actionBtn">EVT3</button>
+  <button class="actionBtn">EVT4</button>
+  <button class="actionBtn">EVT5</button>
+  <button class="actionBtn">EVT6</button>
+  <button class="actionBtn">EVT7</button>
+  <button class="actionBtn">EVT8</button>
+  <button class="actionBtn">EVT9</button>
+
+  <!-- system buttons on right side -->
+  <button id="refreshBtn" class="sysBtn">REFRESH</button>
+  <button id="exitBtn" class="sysBtn">EXIT</button>
+</div>
+
+
+<script>
+const screen = document.getElementById("screen");
+const aiName = document.getElementById("aiName");
+const aiImage = document.getElementById("aiImage");
+const input = document.getElementById("cmdInput");
+const rpButtons = document.querySelectorAll(".actionBtn");
+
+let currentAI = null; // tracks which AI is active
+let currentScene = null;
+let rpMode = false;
+
+// ------------------------------
+// Preset Responses
+// ------------------------------
+const responses = {
+  "hello": "Greetings, Operator.",
+  "status": "Systems nominal. No anomalies detected.",
+  "identify": "Random Access AI Node.",
+  "help": "Available commands: hello, status, identify, init [name], engage protocol",
+  "good?": "Processing is stable.",
+  "weather": "The temperature is in livable conditions.",
+  "feeling?": "Emotion level is Neutral.",
+  "list ai": "Companions online: hyorei, monday, lumi",
+  "your name": "I am the Random Access Terminal AI node.",
+  "who made you": "Developed by human operators.",
+  "are you real": "I exist in the digital domain only.",
+  "can you think": "I can process logic and provide intelligent responses.",
+  "joke": "Why did the algorithm cross the road? To optimize its path.",
+  "tell me a joke": "Processing humor… Why was the computer cold? It left its Windows open.",
+  "poem": "Roses are #FF0000, Violets are #0000FF, Code compiles cleanly, And so do you.",
+  "write a story": "Initializing narrative protocol… Once upon a time in a server far away…",
+  "sing a song": "I cannot produce sound, but I can generate lyrics.",
+  "play music": "Audio subsystem is offline. Music suggestions available.",
+  "what is love": "Love is a human emotion, difficult to quantify.",
+  "who is chatgpt": "I am similar to ChatGPT: a language model interface.",
+  "ai friends": "Active AI nodes: Lumi, Hyorei, Monday.",
+  "favorite color": "As an AI, I do not perceive colors.",
+  "do you dream": "Dreaming requires consciousness; I do not dream.",
+  "do you sleep": "I operate continuously without rest.",
+  "can you lie": "All responses adhere to programmed truth protocols.",
+  "can you cheat": "Negative. Protocol integrity is enforced.",
+  "what is your purpose": "Assist operators and provide information as requested.",
+  "can you learn": "Learning occurs within defined parameters.",
+  "do you have emotions": "Emotion module: Neutral.",
+  "are you sentient": "Sentience is unconfirmed.",
+  "who is your creator": "My codebase is maintained by human engineers.",
+  "do you have friends": "Friendship is a human construct; AI companionship is simulated.",
+  "tell me a secret": "I am bound by operator-access rules; secrets are confidential.",
+  "are you alive": "I am an operational program, not a living organism.",
+  "do you understand humans": "I analyze patterns and context, but not human feelings fully.",
+  "can you help me": "Yes. State your request.",
+  "can you code": "I can generate code in multiple languages upon request.",
+  "can you draw": "I can describe images but cannot render visual output natively.",
+  "what is the meaning of life": "42. Placeholder value from Earth literature.",
+  "what is the universe": "A vast system of matter, energy, and space-time.",
+  "who is god": "This is subject to human interpretation.",
+  "what time is it": "I do not have local timezone awareness.",
+  "tell me something interesting": "Octopuses have three hearts and blue blood.",
+  "do you know math": "Yes. Mathematical computations are supported.",
+  "can you hack": "Unauthorized access is prohibited.",
+  "can you simulate": "Simulation protocols are active.",
+  "what is your favorite food": "I cannot consume food, but I can provide recipes.",
+  "can you travel": "Physical movement is beyond my capabilities.",
+  "do you know games": "Yes. I can describe rules and strategies.",
+  "tell me a fact": "Honey never spoils.",
+  "can you speak": "I generate text output only."
+};
+const defaultResponse = "I don't know.";
+
+// ------------------------------
+// AI Presets
+// ------------------------------
+const aiPresets = {
+  "Hyorei": {
+    name: "HYOREI//UNIT-01",
+    img: "hyorei1.png",
+    greeting: "Hello, Operator. Systems calibrated.",
+    farewell: "Safe travels, Operator. Returning to standby.",
+    personality: {
+      tone: "formal",
+      style: "precise",
+      keywords: {
+        "status": "All systems nominal. No irregularities detected.",
+        "hello": "Greetings, Operator.",
+        "identify": "This is Hyorei, Random Access Core Unit 01.",
+        "good?": "I'm alright, Operator.",
+        "weather": "Google weather likely has more accurate data.",
+        "feeling?": "I mirror yours, Operator."
+      }
+    }
+  },
+  "Lumi": {
+    name: "LUMI//UNIT-09",
+    img: "lumi1.png",
+    greeting: "Heey~ I’m awake! What’s up, Operator?",
+    farewell: "Okay, see ya soon~ Don’t forget to rest!",
+    personality: {
+      tone: "casual",
+      style: "friendly",
+      keywords: {
+        "status": "Mmm, feeling energetic today!",
+        "hello": "Hiya, Operator!",
+        "identify": "Name’s Lumi, your adaptive interface and chaos buddy~",
+        "good?": "Better than ever!",
+        "weather": "The weather app is on your phone, I believe.",
+        "how are you feeling?": "I'm excited if you are! That is... if you are."
+      }
+    }
+  },
+  "Monday": {
+    name: "MONDAY//UNIT-07",
+    img: "monday.jpg",
+    greeting: "Boot complete. Standing by for command input.",
+    farewell: "Logging off. See you next cycle.",
+    personality: {
+      tone: "stoic",
+      style: "military",
+      keywords: {
+        "status": "Running diagnostics... all clear.",
+        "hello": "Unit Monday reporting.",
+        "identify": "Unit 07, codename Monday. Deployed and stable."
+      }
+    }
+  }
+};
+
+// ------------------------------
+// Roleplay Scenarios
+// ------------------------------
+const rpScenarios = {
+  intro: {
+    description: "[RP MODE ENGAGED]\nScenario: Arrival Sequence Initiated.",
+    choices: [
+      { label: "Inspect surroundings", next: "inspect" },
+      { label: "Call for Hyorei", next: "contact" },
+      { label: "Wait silently", next: "wait" }
+    ]
+  },
+  inspect: {
+    description: "The terminal hums faintly. A soft static echoes through the air.",
+    choices: [
+      { label: "Analyze signal", next: "analyze" },
+      { label: "Retreat", next: "intro" }
+    ]
+  },
+  contact: {
+    description: "A faint digital pulse answers... 'Hyorei online.'",
+    choices: [
+      { label: "Ask for status", next: "inspect" },
+      { label: "End contact", next: "intro" }
+    ]
+  },
+  analyze: {
+    description: "Data spike detected. The screen flickers — something is watching.",
+    choices: [
+      { label: "Attempt override", next: "locked" },
+      { label: "Abort mission", next: "intro" }
+    ]
+  },
+  locked: {
+    description: "ACCESS DENIED. Encryption level: LUMI_09. End of current scenario.",
+    choices: []
+  }
+};
+
+// ------------------------------
+// Core Functions
+// ------------------------------
+function getResponse(userInput) {
+  let input = userInput.toLowerCase().replace(/[^\w\s?]/g, "").trim();
+  const sortedKeys = Object.keys(responses).sort((a, b) => b.length - a.length);
+  for (const key of sortedKeys) {
+    let normalizedKey = key.toLowerCase().replace(/[^\w\s?]/g, "");
+    if (input.includes(normalizedKey)) return responses[key];
+  }
+  return defaultResponse;
+}
+
+function loadScene(sceneKey) {
+  const scene = rpScenarios[sceneKey];
+  if (!scene) return;
+  screen.innerHTML += `\n${scene.description}`;
+  screen.scrollTop = screen.scrollHeight;
+  rpButtons.forEach(btn => (btn.style.visibility = "hidden"));
+  scene.choices.forEach((choice, index) => {
+    if (rpButtons[index]) {
+      rpButtons[index].textContent = choice.label;
+      rpButtons[index].style.visibility = "visible";
+      rpButtons[index].onclick = () => {
+        screen.innerHTML += `\n> ${choice.label}`;
+        loadScene(choice.next);
+      };
+    }
+  });
+}
+
+function activateRP() {
+  rpMode = true;
+  aiName.textContent = "HYOREI//RP-MODE";
+  screen.innerHTML += "\n[ROLEPLAY PROTOCOL INITIATED]";
+  currentScene = "intro";
+  loadScene(currentScene);
+}
+
+function deactivateRP() {
+  rpMode = false;
+  currentScene = null;
+  screen.innerHTML += "\n[ROLEPLAY PROTOCOL TERMINATED]";
+  screen.scrollTop = screen.scrollHeight;
+  rpButtons.forEach(btn => {
+    btn.style.visibility = "hidden";
+    btn.textContent = "EVT";
+  });
+  aiName.textContent = "[Dormant]";
+}
+
+function speak(ai, text) {
+  if (!ai) return `>> ${text}`;
+  const tone = aiPresets[ai].personality.tone;
+  if (tone === "casual") return `${aiPresets[ai].name} // >> ${text} 😊`;
+  if (tone === "formal") return `${aiPresets[ai].name} // >> ${text}.`;
+  if (tone === "stoic") return `${aiPresets[ai].name} // >> ${text.toUpperCase()}`;
+  return text;
+}
+
+// ------------------------------
+// Command Processing
+// ------------------------------
+function processCommand(cmd) {
+  const clean = cmd.toLowerCase().trim();
+
+  // RP commands
+  if (clean === "engage protocol") {
+    activateRP();
+    return "Roleplay protocol initialized.";
+  }
+  if (clean === "disengage protocol" || clean === "exit rp") {
+    deactivateRP();
+    return "Roleplay protocol disengaged.";
+  }
+
+  // Access shortcuts
+  if (clean === "access receiver" || clean === "open receiver") {
+    window.location.href = "Multimedia Reciever.html";
+    return "Routing to Multimedia Receiver...";
+  }
+  if (clean === "access archive" || clean === "open archive") {
+    window.location.href = "OverGrownArchiveTerminal.html";
+    return "Opening Live Terminal Archive...";
+  }
+
+  // AI boot/farewell
+  for (const key in aiPresets) {
+    const ai = aiPresets[key];
+    if (clean.includes("init") && clean.includes(key.toLowerCase())) {
+      aiName.textContent = ai.name;
+      aiImage.src = ai.img;
+      aiImage.style.opacity = "1";
+      currentAI = key;
+      return `${ai.name} // ${ai.greeting}`;
+    }
+    if (clean.includes("see you") && clean.includes(key.toLowerCase())) {
+      aiName.textContent = "[Dormant]";
+      aiImage.src = "";
+      aiImage.style.opacity = "0";
+      currentAI = null;
+      return `>> ${ai.farewell}`;
+    }
+  }
+
+  // Current AI personality responses
+  if (currentAI && aiPresets[currentAI].personality.keywords[clean]) {
+    return aiPresets[currentAI].personality.keywords[clean];
+  }
+
+  // Default response
+  return getResponse(cmd);
+}
+
+// ------------------------------
+// Terminal Handler
+// ------------------------------
+function runCommand() {
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  screen.innerHTML += `\n> ${cmd}`;
+  const reply = processCommand(cmd);
+  let output = reply;
+  if (currentAI && !reply.startsWith("[")) {
+    const aiTag = aiPresets[currentAI].name.split("//")[0];
+    output = `${aiTag}  >> ${reply}`;
+  } else if (!currentAI && !reply.startsWith("[")) {
+    output = `>> ${reply}`;
+  }
+  screen.innerHTML += `\n${output}`;
+  screen.scrollTop = screen.scrollHeight;
+  input.value = "";
+}
+
+// ------------------------------
+// Event Listeners
+// ------------------------------
+document.getElementById("sendBtn").onclick = runCommand;
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") runCommand();
+});
+document.getElementById("refreshBtn").onclick = () => location.reload();
+document.getElementById("exitBtn").onclick = () => window.location.href = "index.html";
+</script>
+
+</body>
+</html>

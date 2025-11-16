@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pip-Boy Interactive UI</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #111;
+    font-family: 'Courier New', monospace;
+    color: #0f0;
+  }
+
+  /* --- Pip-Boy Frame --- */
+  .pipboy {
+    width: 500px;
+    background: #222;
+    border: 4px solid #555;
+    border-radius: 20px;
+    box-shadow: 0 0 15px #0f0;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .header {
+    font-size: 1.5em;
+    text-align: center;
+    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+  }
+
+  /* --- Stats Table --- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+
+  th, td {
+    border: 1px solid #0f0;
+    text-align: center;
+    padding: 5px;
+  }
+
+  .bar-container {
+    width: 100%;
+    background: #003300;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .bar {
+    height: 12px;
+    background: #0f0;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  /* --- Inventory Table --- */
+  .inventory td {
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .inventory td:hover {
+    background: rgba(0,255,0,0.1);
+  }
+
+  /* --- Item Detail Panel --- */
+  .item-panel {
+    max-height: 0;
+    overflow: hidden;
+    background: #111;
+    border: 1px solid #0f0;
+    border-radius: 6px;
+    padding: 0 10px;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+  }
+
+  .item-panel.active {
+    max-height: 100px;
+    padding: 10px;
+  }
+
+  .item-panel p {
+    margin: 0;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="pipboy">
+  <div class="header">STATS</div>
+  <table>
+    <tr>
+      <th>HP</th>
+      <th>AP</th>
+      <th>RAD</th>
+    </tr>
+    <tr>
+      <td>
+        <div class="bar-container"><div class="bar" id="hp-bar"></div></div>
+      </td>
+      <td>
+        <div class="bar-container"><div class="bar" id="ap-bar"></div></div>
+      </td>
+      <td>
+        <div class="bar-container"><div class="bar" id="rad-bar"></div></div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="header">INVENTORY</div>
+  <table class="inventory">
+    <tr>
+      <td data-item="Stimpak: Heals 50 HP">Stimpak</td>
+      <td data-item="RadAway: Reduces radiation">RadAway</td>
+      <td data-item="Water Bottle: Hydration">Water</td>
+    </tr>
+    <tr>
+      <td data-item="Ammo Pack: 50 bullets">Ammo</td>
+      <td data-item="Scrap: Crafting material">Scrap</td>
+      <td data-item="Canned Food: Restores health">Food</td>
+    </tr>
+  </table>
+
+  <div class="item-panel" id="item-panel">
+    <p id="item-detail"></p>
+  </div>
+</div>
+
+<script>
+  // --- Animate stats bars ---
+  document.getElementById('hp-bar').style.width = '75%';
+  document.getElementById('ap-bar').style.width = '50%';
+  document.getElementById('rad-bar').style.width = '20%';
+
+  // --- Inventory interactivity ---
+  const inventoryCells = document.querySelectorAll('.inventory td');
+  const itemPanel = document.getElementById('item-panel');
+  const itemDetail = document.getElementById('item-detail');
+
+  inventoryCells.forEach(cell => {
+    cell.addEventListener('click', () => {
+      itemDetail.textContent = cell.dataset.item;
+      itemPanel.classList.toggle('active');
+    });
+  });
+</script>
+
+</body>
+</html>

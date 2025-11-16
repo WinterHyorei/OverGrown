@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overgrown Vault Terminal</title>
+<style>
+body {
+  background: url('overgrown.png') center/cover no-repeat fixed;
+  color: #A8FBD3;
+  font-family: 'Courier New', monospace;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.vault-container {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+}
+
+h1 {
+  font-family: Impact, sans-serif;
+  font-size: 36px;
+  letter-spacing: 2px;
+  color: cyan;
+  text-shadow: 0 0 15px red, 0 0 25px cyan;
+  margin-bottom: 20px;
+}
+
+input {
+  background: black;
+  border: 2px solid cyan;
+  color: #A8FBD3;
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 4px;
+  padding: 10px;
+  width: 200px;
+  border-radius: 5px;
+}
+
+button {
+  background: rgba(255, 0, 0, 0.15);
+  border: 2px solid red;
+  color: cyan;
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 15px;
+  padding: 8px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:hover {
+  background: rgba(255, 0, 0, 0.4);
+  box-shadow: 0 0 15px cyan;
+}
+
+#vault-status {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.glitch {
+  animation: glitch 2s infinite;
+}
+
+@keyframes glitch {
+  0% { text-shadow: 1px 0 red, -1px 0 cyan; }
+  25% { text-shadow: -1px 0 red, 1px 0 cyan; }
+  50% { text-shadow: 2px 0 red, -2px 0 cyan; }
+  75% { text-shadow: -2px 0 red, 2px 0 cyan; }
+  100% { text-shadow: 1px 0 red, -1px 0 cyan; }
+}
+</style>
+</head>
+<body>
+  <div class="vault-container">
+    <h1 class="glitch">VAULT TERMINAL</h1>
+    <p>Enter 6-digit access code</p>
+    <input type="text" id="vault-code" maxlength="6" placeholder="______">
+    <br>
+    <button onclick="checkCode()">UNLOCK</button>
+    <div id="vault-status"></div>
+    <p>Attempts left: <span id="attempts-left">6</span></p>
+  </div>
+
+<script>
+const correctCodes = ["198641", "586423", "130721"]; // ✅ You can add as many as you like
+const MAX_ATTEMPTS = 6;
+const RESET_INTERVAL = 300000; // 5 minutes
+
+function initVault() {
+  const now = Date.now();
+  const lastReset = localStorage.getItem("lastResetTime");
+  let attemptsLeft = localStorage.getItem("attemptsLeft");
+
+  if (!lastReset || now - lastReset > RESET_INTERVAL) {
+    resetVault();
+  } else {
+    if (!attemptsLeft) attemptsLeft = MAX_ATTEMPTS;
+    updateDisplay(attemptsLeft);
+  }
+}
+
+function resetVault() {
+  localStorage.setItem("attemptsLeft", MAX_ATTEMPTS);
+  localStorage.setItem("lastResetTime", Date.now());
+  updateDisplay(MAX_ATTEMPTS);
+  setStatus("System refreshed. Attempts restored.", "cyan");
+}
+
+function useAttempt() {
+  let attempts = parseInt(localStorage.getItem("attemptsLeft"));
+  if (attempts > 0) {
+    attempts--;
+    localStorage.setItem("attemptsLeft", attempts);
+    updateDisplay(attempts);
+    if (attempts === 0) lockVault();
+  }
+}
+
+function checkCode() {
+  const code = document.getElementById("vault-code").value.trim();
+  const attempts = parseInt(localStorage.getItem("attemptsLeft"));
+
+  if (attempts <= 0) {
+    setStatus("⚠️ Vault is locked. Please wait 5 minutes for reset.", "red");
+    return;
+  }
+
+  if (correctCodes.includes(code)) {
+    setStatus("✅ ACCESS GRANTED — Retrieving Archive Data...", "cyan");
+    document.body.style.background = "rgba(0, 255, 100, 0.1)";
+    setTimeout(() => {
+      alert("MEDIA UNLOCKED: Overgrown archive fragment downloaded.");
+      resetVault();
+    }, 1000);
+  } else {
+    useAttempt();
+    setStatus("❌ ACCESS DENIED — Incorrect code.", "red");
+  }
+
+  document.getElementById("vault-code").value = "";
+}
+
+function lockVault() {
+  setStatus("🔒 VAULT LOCKED — Reset in 1 hour.", "red");
+}
+
+function setStatus(text, color) {
+  const statusEl = document.getElementById("vault-status");
+  statusEl.innerHTML = text;
+  statusEl.style.color = color;
+}
+
+function updateDisplay(num) {
+  document.getElementById("attempts-left").textContent = num;
+}
+
+window.onload = initVault;
+</script>
+</body>
+</html>

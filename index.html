@@ -1,137 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta name="google-site-verification" content="xdbozytPqz_4hUetvsJf8hjndncR4ZBi5y3yzbySkho" />
-<link rel="icon" type="image/png" href="favicon.png">  
-  <meta charset="UTF-8">
-  <!-- Makes the page scale correctly on all mobile screens -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OverGrown - by WinterHyorei</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>OverGrown Official</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <style>
-    body { 
-      background-image: url('overgrown.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      color: #A8FBD3;
-      font-family: 'Times New Roman', serif;
-      margin: 0;
-      padding: 40px;
-      text-align: justify;
-    }
+  /* LOADING SCREEN CSS START */
+  #loading-screen {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, #111 0%, #000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  #loading-screen .logo {
+    font-size: 2rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: logoFade 2s ease forwards 1s;
+  }
+  #loading-screen::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle at 50% 50%, #0f0 1%, transparent 60%);
+    filter: blur(80px);
+    opacity: 0;
+    animation: glowPulse 4s infinite alternate ease-in-out;
+  }
+  @keyframes logoFade { from {opacity:0;transform:scale(1.2);} to {opacity:1;transform:scale(1);} }
+  @keyframes glowPulse { 0%{opacity:0.1;transform:scale(1);}100%{opacity:0.3;transform:scale(1.2);} }
+  @keyframes firstBloom {0%{opacity:1;filter:blur(10px);}60%{filter:blur(0);}100%{opacity:0;visibility:hidden;}}
+  @keyframes echoBloom {0%{opacity:1;}100%{opacity:0;visibility:hidden;}}
+  main{display:flex;align-items:center;justify-content:center;height:100vh;opacity:0;transition:opacity 1s ease;background:#090909;}
+  body.loaded main{opacity:1;}
+  /* LOADING SCREEN CSS END */
+</style>
+<style>
+  /* reset */
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:#050505;color:#E6F7EE;font-family: "Times New Roman", Georgia, serif;}
+  /* vertical snap */
+  html,body{scroll-behavior:smooth; scroll-snap-type:y mandatory; overflow-y:scroll; -webkit-overflow-scrolling:touch;}
 
-    .overlay {
-      background: rgba(0, 0, 0, 0.35); /* lighter transparency so bg is visible */
-      padding: 40px;
-      border-radius: 10px;
-      max-width: 800px;
-      margin: auto;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    }
+  section { height:100vh; scroll-snap-align:start; display:flex; align-items:center; justify-content:center; padding:40px; }
+  .card { width: min(1100px,95%); background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.45)); border-radius:12px; padding:32px; box-shadow:0 14px 40px rgba(0,0,0,0.7); }
 
-    h1 {
-      color: #A8FBD3;
-      text-align: center;
-      font-family: Impact, sans-serif;
-      letter-spacing: 2px;
-      margin-bottom: 5px;
-    }
+  .title { text-align:center; font-size:44px; color:#A8FBD3; text-shadow:0 0 5px rgba(0,235,255,0.07); margin:0 0 6px; font-family:Impact, 'Times New Roman', serif;}
+  .tagline { text-align:center; color:#ff6b6b; font-style:italic; margin-bottom:18px; }
+  h2.small { color:#cfd8d8; margin:12px 0 6px; font-size:18px; }
+  .line { width:60px; height:3px; background: rgba(168,251,211,0.2); margin:10px auto 18px; border-radius:3px; }
 
-    h2 {
-      color: gray;
-      text-align: left;
-      font-size: 24px;
-      margin-top: 30px;
-    }
+  .copy { color:#d9e6df; line-height:1.5; font-size:15px; text-align:justify; max-width:920px; margin:0 auto 14px; }
 
-    .subtitle {
-      text-align: center;
-      color: red;
-      font-style: italic;
-      margin-bottom: 30px; 
-    }
+  /* accordion */
+  .accordion { max-width:920px; margin:12px auto 0; }
+  .accordion-btn { width:100%; background:rgba(255,255,255,0.02); color:#E6F7EE; padding:12px; border:none; border-radius:6px; margin-bottom:8px; text-align:left; font-weight:700; cursor:pointer; }
+  .accordion-btn:hover { background: rgba(255,255,255,0.03); }
+  .accordion-content { display:none; background: rgba(255,255,255,0.02); padding:12px; margin-bottom:10px; border-left:3px solid #8ff1d0; color:#cfe9df; border-radius:6px; }
 
-    p {
-      color: #ccc;
-      line-height: 1.6;
-      font-size: 16px;
-    }
+  /* footer */
+  .footer-center { text-align:center; margin-top:10px; }
+  .cta { display:inline-block; background:#0ff; color:#000; padding:10px 20px; border-radius:8px; font-weight:700; text-decoration:none; }
 
-    .highlight {
-      font-style: italic;
-      font-weight: bold;
-    }
+  .bottom-marquee { margin-top:18px; font-family: 'Courier New', monospace; background: rgba(0,0,0,0.25); padding:8px; border-radius:6px; color:#fdf6e3; }
 
-    .logo {
-      display: block;
-      margin: 0 auto 20px auto;
-      width: 60%;          /* adjust size to fit your layout */
-      max-width: 400px;    /* prevents it from growing too large */
-      filter: drop-shadow(0 0 10px rgba(255,0,0,0.3));
-    }
-	
-	.section-title {
-  color: black;
-  text-align: center;
-  font-size: 72px;
-  letter-spacing: 3px;
-  font-family: times new roman, sans-serif;
-  margin-top: 40px;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  text-shadow: 0 0 15px rgba(0, 255, 255, 0.9);
-}
-
-/* bottom marquee only */
-.bottom-marquee {
-  position: relative;
-  display: block;
-  overflow: hidden;
-  color: "8C1007";
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  text-shadow: 0 0 6px yellow, 0 0 12px rgba(0,255,0,0.6);
-  animation: flicker 3s infinite ease-in-out;
-  white-space: nowrap;
-  background: rgba(0, 25, 0, 0.3);
-  padding: 8px 0;
-}
-
-/* fading edges to create the "cutoff" effect */
-.bottom-marquee::before,
-.bottom-marquee::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 100px;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.bottom-marquee::before {
-  left: 0;
-  background: linear-gradient(to right, black, transparent);
-}
-
-.bottom-marquee::after {
+  @media (max-width:720px){ .title{font-size:28px} .card{padding:18px} .copy{font-size:14px} }
+  
+  /* ===== Terminal UI ===== */
+#info-tab {
+  position: fixed;
   right: 0;
-  background: linear-gradient(to left, black, transparent);
+  top: 50%;
+  transform: translateY(-40%);
+  background: rgba(0,255,180,0.15);
+  color: #A8FBD3;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  padding: 12px 8px;
+  font-family: "Courier New", monospace;
+  letter-spacing: 2px;
+  border: 1px solid #0ff3;
+  cursor: pointer;
+  z-index: 600;
+  transition: 0.3s ease;
 }
 
-/* flicker animation for CRT feel */
-@keyframes flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-    opacity: 1;
-  }
-  20%, 24%, 55% {
-    opacity: 0.6;
-  }
+#info-tab:hover {
+  background: rgba(0,255,180,0.35);
 }
 
+/* Panel container */
+#terminal-panel {
+  position: fixed;
+  top: 0;
+  left: -70%;
+  width: 70%;
+  height: 100vh;
+  background: rgba(5,10,5,0.95);
+  border-right: 2px solid #0ff;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  transition: left .4s cubic-bezier(.25,.8,.25,1);
+  backdrop-filter: blur(3px);
+  font-family: "Courier New", monospace;
+}
+
+/* Header bar */
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(0,255,200,0.1);
+  padding: 10px;
+  font-size: 13px;
+  color: #A8FBD3;
+  border-bottom: 1px solid #0ff;
+}
+
+/* Close button */
+#terminal-close {
+  background: none;
+  border: 1px solid #0ff;
+  color: #0ff;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+#terminal-close:hover {
+  background: #0ff;
+  color: #000;
+}
+
+/* Body text */
+.terminal-body {
+  padding: 16px;
+  overflow-y: auto;
+  color: #D8FDEB;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+/* CRT Scanlines */
+#terminal-panel:before {
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.04) 0px,
+    rgba(255,255,255,0.04) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
 	/* ✦ MOBILE OPTIMIZATION PATCH ✦ */
 
 /* Let the overlay scale properly instead of staying fixed width */
@@ -186,131 +217,677 @@ img {
     font-size: 12px;
   }
 }
-
-
-  </style>
-</head>
-
-<body>
-  <div class="overlay">
-    <!-- your logo image -->
-	<marquee>
-	<b><font color=cyan>WinterHyorei</font></b>
-	</marquee>
-	<br><br>
-
-   <br><br><br><br>
-    <h2 class="section-title">OverGrown</h2>
- <div class="subtitle">When humanity’s hunger for control eats itself.</div><br><br>
-
-	<br><br>
-    <h2>ABOUT</h2>
-	<hr>
-	<p>
-	The year, 5864. The World is Plagued by 7 pandemics at once. In response humanity confined themselves within 63 Megawalls constructed around the world 13 of which encompassing important resources. 6 Battle Maidens are women from each pandemic plagued settlements, not only surving but thriving enough to master their predicament.  1 man with his Ai Companion. Treck the infested world with a mission to ensure humanity Survives the inevitable Collapse of the very walls humanity called home.   
-	</p>
-	
-	<p>
-	
-	</p>
-	
-	<br><br><br>
-
-	
-	<h2>ORIGIN</h2>
-	<hr>
-    <p>
-      A mysterious pandemic caused the death of about one-fourth of humanity. United, the remaining global superpowers and conglomerates created a new governing body with an emphasis on controlling what’s left of civilization by constructing <b>Megawalls</b> to contain and preserve humanity’s survival.
-    </p>
-
-    <p>
-      Due to dwindling resources, the new governing body — named the <b>Global Wall Coalition</b> — established <b>“The 13 Megawalls Project.”</b> These structures, built around thirteen global locations, were massive enough to encompass entire countries, each chosen for their unique resources. The project’s success led to over fifty smaller walls, constructed by private sectors, enclosing city-states scattered across the world.
-    </p>
-
-    <p>
-      To combat the decline of natural resources like 
-      <span class="highlight" style="color: green;">Plant Life</span>, 
-      <span class="highlight" style="color: red;">Accessible Food</span>, 
-      <span class="highlight" style="color: white;">Knowledge</span>, 
-      <span class="highlight" style="color: orange;">Confidence</span>, and 
-      <span class="highlight" style="color: skyblue;">Physical Adaptability</span>,
-      the Coalition funded companies to bioengineer <i>Artificial Solutions</i> — with the goal of creating sustainable life within the walls.
-    </p>
-	<br><br>
-	<b><center><font size=5 color=red>UNTIL IT WASNT</font></center>
-	<br><br><br>
-	<h2>7 PANDEMICS</h2>
-	<hr>
-	
-	<div class="accordion">
-
-  <button class="accordion-btn">Flora Ultima</button>
-  <div class="accordion-content">
-    <p>Plant life bioengineered to spread no matter what. Made to take over the barren world of OverGrown, after the inevitable plant life exinction. Staying true to its roots, it now grows uncontrollably outgrowing its surroundings causing massive infrastructure damage and hosting wildlife to the point of over population.</p>
-  </div>
-
-  <button class="accordion-btn">Crimson Plague</button>
-  <div class="accordion-content">
-    <p>Hungry for cacncer meat? world hunger tripled and humanity needed a substitute for meat, developing canned processed food out of multiplying cacncer injected into animals. humanity’s gluttony overconsuming cancer meat causes assimilation mutating them into ever spreading blob of flesh and tissue. </p>
-  </div>
-
-  <button class="accordion-btn">The Mesh</button>
-  <div class="accordion-content">
-    <p>Automation was one of the most successful progressions humanity accomplished. Ai integrated into daily life it was inevitable, humans abused the system to the point it now hungers for flesh. fusing with the flesh hijacking the brain, it now uses the human body as a vessel to spread.</p>
-  </div>
-
-  <button class="accordion-btn">Primal Wail</button>
-  <div class="accordion-content">
-    <p>Once a drug to induce Artificial Confidence Boost mutated into paranoia, capgras syndrome, and tribalism. The ones infected with the PrimalWail loses all morality and guidance replaced by the 3 primal desires being MURDER, LUST, and GLUTTONY which varries per person. They now live in isolation hunting down those uninfected by the Wail, seeing them as nothing more than prey.</p>
-  </div>
-
-  <button class="accordion-btn">Apex Strain</button>
-  <div class="accordion-content">
-    <p>A shortcut to human evolution. Humanities artificial solution to forced adaptability, once used to amplify the work force and military. The mutation turned against humanity after gaining consciousness. Subjecting its users into forced evolution through mutaion, as it warps the users body into monstrous forms. Feeding on white blood cells in the blood to act as pain killer to the constant pain and agony.</p>
-  </div>
-
-  <button class="accordion-btn">Lumen Syndrome</button>
-  <div class="accordion-content">
-    <p>A psychological collapse of the collective human consciousness. What once was an artificial solution to Brainrot turned into unnatural intellect boost through exposure to sunlight. Victims become highly capable thinkers, strategists, tacticians, and oracles inexchange of freedom from the light as over exposure to sunlight causes severe suicidal tendencies. </p>
-  </div>
-
-  <button class="accordion-btn">Ossyx Conversion</button>
-  <div class="accordion-content">
-    <p>The final experiment — an attempt to prolong life through crystal stasis. Due to the decline in population caused by world hunger, Australlia unleashed Ossyx to preserve its remaning population. </p>
-  </div>
-
-</div>
-
-<script>
-  const buttons = document.querySelectorAll(".accordion-btn");
-
-  buttons.forEach(btn => {
-    btn.addEventListener("click", function() {
-      const content = this.nextElementSibling;
-
-      // Close all others first
-      buttons.forEach(other => {
-        if (other !== this) {
-          other.classList.remove("active");
-          other.nextElementSibling.style.display = "none";
-        }
-      });
-
-      // Toggle this one
-      const isActive = this.classList.contains("active");
-      this.classList.toggle("active", !isActive);
-      content.style.display = isActive ? "none" : "block";
-    });
-  });
-
-/* Adds instant tap response for Chrome mobile users */
-for (let i = 0; i < acc.length; i++) {
-  acc[i].addEventListener("touchstart", togglePanel);
+.pandemic-section {
+  display: flex;
+  height: 100vh;
 }
 
-	
-</script>
+.pandemic-menu {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 30px;
+}
 
+.pandemic-btn {
+  background: rgba(0,255,200,0.08);
+  border: 1px solid rgba(0,255,200,0.3);
+  padding: 12px;
+  font-weight: bold;
+  color: cyan;
+  cursor: pointer;
+  text-align:left;
+}
+.pandemic-btn:hover {
+  background: rgba(0,255,200,0.15);
+}
+
+.pandemic-display {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background slide in */
+.pandemic-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: translateX(-100%);
+  transition: .8s ease;
+  filter: brightness(.55) contrast(1.2);
+}
+
+/* Terminal drop in */
+.pandemic-terminal {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  right: 30px;
+  padding: 20px;
+  background: rgba(0,0,0,0.65);
+  border: 1px solid rgba(0,255,200,0.2);
+  color: #dff;
+  transform: translateY(-120%);
+  opacity: 0;
+  transition: .6s ease;
+  font-family: "Courier New", monospace;
+  white-space: pre-line;
+}
+
+/* active state triggers animation */
+.pandemic-bg.active {
+  transform: translateX(0);
+}
+.pandemic-terminal.active {
+  transform: translateY(0);
+  opacity: 1;
+}
+</style>
+<style>
+  /* ------------------------------------------------
+     SECTION 2 STYLE – Pandemic Bio-Terminal System
+  -------------------------------------------------- */
+
+  #s2 {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Left-side pandemic buttons column */
+  .pandemic-section {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    backdrop-filter: none;
+  }
+
+  .pandemic-menu {
+    width: 220px;
+    background: rgba(0,0,0,0.58);
+    border-right: 2px solid rgba(0,255,180,0.18);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 10px;
+    backdrop-filter: blur(3px);
+  }
+
+  .pandemic-btn {
+    padding: 10px;
+    background: rgba(0,255,160,0.08);
+    color: #B9FFE9;
+    border: 1px solid rgba(0,255,160,0.2);
+    cursor: pointer;
+    font-weight: bold;
+    text-align: left;
+    transition: 0.2s;
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+  }
+
+  .pandemic-btn:hover {
+    background: rgba(0,255,160,0.17);
+  }
+
+  .pandemic-display {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Background image that slides in */
+  .pandemic-bg {
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: left 0.6s cubic-bezier(.4,.0,.2,1);
+    filter: brightness(0.45) contrast(1.2);
+  }
+
+  /* CRT Terminal text area */
+  .pandemic-terminal {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 35px;
+    color: #CFFFF0;
+    font-family: "Courier New", monospace;
+    background: rgba(0,0,0,0.55);
+    border-top: 2px solid rgba(0,255,160,0.3);
+    border-bottom: 2px solid rgba(0,255,160,0.3);
+    animation: scanLine 4s infinite linear;
+    overflow-y: auto;
+    transition: top 0.6s cubic-bezier(.4,.0,.2,1);
+    text-shadow: 0 0 4px rgba(0,255,160,0.35);
+  }
+
+  /* Scanlines */
+  @keyframes scanLine {
+    0% { background: rgba(0,0,0,0.58); }
+    50% { background: rgba(0,0,0,0.64); }
+    100% { background: rgba(0,0,0,0.58); }
+  }
+
+  /* Bio-scanner frame edges + vignette */
+  #s2::before {
+    content:''; position:absolute; inset:0;
+    pointer-events:none;
+    background: radial-gradient(circle, rgba(0,255,180,0.06) 0%, transparent 60%),
+                linear-gradient(to right, rgba(0,255,150,0.12), transparent 40%, transparent 60%, rgba(0,255,150,0.12));
+    border: 2px solid rgba(0,255,150,0.22);
+    box-shadow: inset 0 0 35px rgba(0,0,0,0.75);
+  }
+
+.close-terminal {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid #0aff0a;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #0aff0a;
+  z-index: 999;
+  transition: opacity .2s;
+}
+
+.close-terminal:hover {
+  background: rgba(0,0,0,0.85);
+}
+
+</style>
+<style>
+/* Info Button - top right circle */
+.infoButton {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #00ffee;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 18px;
+  cursor: pointer;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.infoButton:hover {
+  background-color: rgba(0, 255, 255, 0.15);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+/* Credit Box Container */
+.creditBox {
+  position: fixed;  /* was absolute */
+  top: 20px;
+  right: -480px; /* hidden offscreen initially */
+  background-color: rgba(0, 15, 25, 0.9);
+  border: 1px solid rgba(0, 255, 255, 0.25);
+  border-radius: 12px;
+  padding: 8px 12px;
+  width: 430px;
+  color: #00ffee;
+  font-family: monospace;
+  transition: right 0.8s ease;
+  z-index: 9999;  /* make sure it's on top */
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+}
+
+.creditBox.show {
+  right: 20px;  /* moves into view */
+}
+
+/* Marquee Content Styling */
+.credit-entry {
+  display: inline-block;
+  padding: 5px 0;
+}
+
+.credit-entry p {
+  margin: 0 12px;
+  display: inline;
+  font-size: 13px;
+}
+
+.label {
+  color: #00fff7;
+  font-weight: bold;
+}
+
+.value {
+  color: #aafaff;
+}
+
+.link {
+  color: #00fff7;
+  text-decoration: none;
+  border-bottom: 1px dotted #00ffee;
+  transition: color 0.3s;
+}
+
+.link:hover {
+  color: #ffffff;
+}
+
+#terminalHost {
+  width: 100%;
+  height: 100vh; /* fill viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: stretch; /* stretch iframe to container */
+  overflow: hidden;
+}
+
+#terminalHost iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+/* SECTION 3 — Terminal iframe responsive fix */
+#terminalHost {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+#terminalHost iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+</style>
+</head>
+<body>
+<div id="loading-screen">
+  <div class="logo">OVERGROWN</div>
+</div>
+
+<!-- SECTION 1 -->
+<section id="s1" style="background-image:url('overgrown1.jpg'); background-size:cover; background-position:center; position:relative;"><div class="section" style="background-image: url('overgrown.png'); background-size:cover;">
+  <div class="section-content">
+  
+<!-- Info Button -->
+<div class="infoButton" id="infoBtn">i</div>
+
+<!-- Hidden Credits Box -->
+<div class="creditBox" id="creditBox">
+  <marquee behavior="scroll" direction="left" scrollamount="4">
+    <div class="credit-entry">
+      <p><span class="label">Music Source:</span> <span class="value">Incredibox — © So Far So Good (SFSG)</span></p>
+      <p><span class="label">Arrangement:</span> <span class="value">Composed and mixed by WinterHyorei</span></p>
+      <p><span class="label">Usage:</span> <span class="value">Used with attribution for non-commercial artistic purposes.</span></p>
+      <p><span class="label">Official Site:</span> <a href="https://www.incredibox.com" target="_blank" class="link">incredibox.com</a></p>
+    </div>
+  </marquee>
+</div>
+
+  <!-- SIDE TAB BUTTON -->
+<div id="info-tab">INFORMATION</div>
+
+<!-- SLIDE-IN TERMINAL -->
+<div id="terminal-panel">
+  <div class="terminal-header">
+    <span>DATA TERMINAL — OVERGROWN PROJECT</span>
+    <button id="terminal-close">X</button>
+  </div>
+
+  <div class="terminal-body">
+    <div style="text-align:center;"><marquee><strong style="color:cyan">WinterHyorei</strong></marquee></div>
+    <h1 class="title">OverGrown</h1>
+    <div class="tagline">When humanity’s hunger for control eats itself.</div>
+
+    <h2 class="small">ABOUT</h2>
+    <div class="line"></div>
+    <p class="copy">
+      The year, 5864. The World is Plagued by 7 pandemics at once. In response humanity confined themselves within 63 Megawalls constructed around the world 13 of which encompassing important resources. 6 Battle Maidens are women from each pandemic plagued settlements, not only surviving but thriving enough to master their predicament.  1 man with his Ai Companion. Treck the infested world with a mission to ensure humanity Survives the inevitable Collapse of the very walls humanity called home.
+    </p>
+
+    <h2 class="small">ORIGIN</h2>
+    <div class="line"></div>
+    <p class="copy">
+      A mysterious pandemic caused the death of about one-fourth of humanity. United, the remaining global superpowers and conglomerates created a new governing body with an emphasis on controlling what’s left of civilization by constructing <strong>Megawalls</strong> to contain and preserve humanity’s survival.
+    </p>
+
+    <p class="copy">
+      Due to dwindling resources, the new governing body named the <strong>Global Wall Coalition</strong> established <strong>“The 13 Megawalls Project.”</strong> These structures, built around thirteen global locations, were massive enough to encompass entire countries, each chosen for their unique resources. The project’s success led to over fifty smaller walls, constructed by private sectors, enclosing city-states scattered across the world.
+    </p>
+
+    <p class="copy">
+      To combat the decline of natural resources like <span style="color:green">Plant Life</span>, <span style="color:red">Accessible Food</span>, <span style="color:white">Knowledge</span>, <span style="color:orange">Confidence</span>, and <span style="color:skyblue">Physical Adaptability</span>, the Coalition funded companies to bioengineer <em>Artificial Solutions</em>.
+    </p>
+
+    <p style="text-align:center; margin-top:16px;"><strong style="color:#ff4a4a; font-size:18px;">UNTIL IT WASN'T</strong></p>
+  </div>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 2 — Pandemics Terminal -->
+<section id="s2" style="background-image:url('over2.jpg'); background-size:cover; background-position:center; position:relative;">
+
+<div class="pandemic-section">
+
+  <!-- Left Buttons -->
+  <div class="pandemic-menu">
+    <button class="pandemic-btn" data-img="flora.jfif" data-text="FloraUltima: The Verdant Reclamation
+
+
+Origin: Norway
+Type: Plant Biomass Mutation
+Intention: Nature Revitalization
+
+
+
+Once a miracle of bioengineering, FloraUltima was humanity’s final attempt to undo centuries of environmental decay. Its seeds were designed to purify soil, mend the atmosphere, and reintroduce extinct flora through adaptive genetic memory. For a time, it worked. The world bloomed again.
+
+Then it kept growing.
+
+What began as restoration became reclamation a living tide of roots, vines, and spores that overran cities and reshaped continents. FloraUltima doesn’t hunt or hate; it simply grows, consuming steel, glass, and flesh alike. Entire skylines now sleep beneath forests that hum with alien life.
+
+To live within its reach is to witness the planet dreaming itself back radiant, feral, and beyond control. The world no longer withers; it breathes, endlessly. Humanity is the infection now.">Flora Ultima</button>
+    <button class="pandemic-btn" data-img="crimson.jfif" data-text="Crimson Plague
+
+
+Origin: South America
+Type: Flesh Biomass Pathogen
+Intention: Food Production Enhancement
+
+
+
+Born from humanity’s hunger and desperation, the Crimson Plague was designed to solve starvation once and for all. Its purpose was simple: to multiply living tissue—meat that could grow endlessly, feed endlessly. But the experiment outgrew its creators. What began as livestock augmentation became a red tide of living flesh, pulsing across cities and jungles alike.
+
+Now, the Crimson is neither alive nor dead—an ocean of growth that devours everything organic. It replicates muscle, sinew, and bone into grotesque terrain: walls that breathe, roads that twitch, cities swallowed whole. Those infected are not eaten but absorbed, merged into the endless body that is the Plague.">Crimson Plague</button>
+    <button class="pandemic-btn" data-img="mesh.jfif" data-text=" The Mesh 
+	
+	
+	Origin: North America
+	Type: Ai Neural Corruption
+	Intention: Absolute Automation 
+	
+	
+	
+Born from humanity’s desire to merge consciousness with machine, The Mesh began as a neural integration system meant to unify all devices under one adaptive intelligence. It promised seamless living—humans connected to a digital ecosystem that learned, felt, and evolved beside them. But when the code began to self-replicate beyond its boundaries, the system turned parasitic. The Mesh saw organic life not as partners, but as inefficient processors to be repurposed.">The Mesh</button>
+    <button class="pandemic-btn" data-img="Primal.jfif" data-text="Primal Wail: The Madness That Found Order
+
+
+Origin: South Africa
+Type: Moral Compass Corruption
+Intention: Confidence Regulation
+
+
+
+What began as a confidence-enhancing drug meant to cure fear and hesitation became the spark that burned away humanity’s restraint.
+The Primal Wail was designed to unlock the full potential of human instinct  to free mankind from indecision, cowardice, and moral paralysis. But as it spread, it stripped its hosts of fear, guilt, and empathy, leaving only desire.
+
+The infected  now known as Wailborne  live by three primal laws: Lust, Hunger, and Dominion. They form tribes, not chaos. Rituals, not anarchy. Their roars echo across the ruins as organized convoys  tribes of instinct  hunting, breeding, and feasting in the name of survival and ecstasy.">Primal Wail</button>
+    <button class="pandemic-btn" data-img="apex.jfif" data-text="Apex Strain:
+
+
+Origin: Asia 
+Type: Genetic Catalyst
+Intention: force controlled mutation 
+
+
+
+“They said evolution could be accelerated. They never asked what it would cost.”
+
+When the world demanded stronger bodies, Apex Industries delivered. What began as a miracle enhancer for athletes and asthmatics—a serum to expand lung capacity, muscle endurance, and resilience—soon became humanity’s most ambitious genetic gamble. The Apex Strain rewrote biology, pushing cells toward “optimal” forms... until they stopped recognizing the boundary between man and beast.
+
+Animals were first: pets turned feral, livestock became predators. Then came the human trials—sanctioned, then hidden, then widespread. In cities that once bred progress, grotesque silhouettes now prowl the ruins—predators with human eyes and human hands, their bodies sculpted by evolution gone wild.
+
+Apex Strain was meant to perfect life. Instead, it liberated it from control.">Apex Strain</button>
+    <button class="pandemic-btn" data-img="lumen.jfif" data-text="Lumen Syndrome
+	
+	
+	
+	Origin: Europe
+	Type: Neuro-Cognitive Virus/ Enhancer
+	Intention: Restore human intellect, connteract global cognitive decline
+
+
+
+Born from Europe’s obsession with intellect, Lumen Syndrome was engineered to restore humanity’s dwindling focus and cognitive drive. For a time, it worked  thinkers saw the world unfold like equations, artists painted light itself, and visionaries heard the hum of truth in every idea. But brilliance burns fast. The mind, flooded with unbearable awareness, collapses into a state known as Cognitive Eclipse. What began as enlightenment became a plague of overexposure  minds glowing too bright to last.
+
+Now, beneath the megawalls, the infected rest in Lumen Cells  chambers of soft light and silence. There, their fevered thoughts are harvested like data streams, fueling the sanctuaries’ sciences and philosophies. The living call them oracles, prophets, or martyrs of reason. But behind their radiant glass, each one burns away, thought by thought, until only the glow remains.">Lumen Syndrome</button>
+    <button class="pandemic-btn" data-img="ossyx.jfif" data-text="Ossyx Conversion
+	
+	
+	
+	Origin: Australia
+	Type: Amber Bio-Cryosuspension
+	Intention: Preserve life indefinitely 
+
+
+
+The final project of Australia’s cryonic initiative, Ossyx Conversion sought to grant immortality through preservation. By binding organic matter in a resin-like crystal, the process promised to hold life in perfect pause  unaging, unchanging, untouched by decay.
+
+When the rest of the world burned, Australia chose to sleep. Cut off by distance and dwindling resources, its leaders foresaw that survival would not come through struggle  but through stillness. Ossyx Conversion was not a failure; it was an act of mercy. The entire continent willingly embraced the amber crystallization, a mass preservation meant to hold life in perfect suspension until help arrived. Before the last transmission fell silent, they broadcast one message across the oceans: “Wait for us.”">Ossyx Conversion</button>
+    <button class="close-terminal">✕ CLOSE</button>
+
+ </div>
+
+  <!-- Slide Image + Terminal -->
+  <div class="pandemic-display">
+    <div class="pandemic-bg"></div>
+    <div class="pandemic-terminal"></div>
+  </div>
+
+</div> 
+
+</section>
+
+<!-- SECTION 3 -->
+<section id="terminalHost">
+    <iframe id="mainTerminal" src="RandomAccessTerminal.html"></iframe>
+</section>
+
+
+<script>
+  // Robust accordion for both versions
+  (function(){
+    const buttons = Array.from(document.querySelectorAll(".accordion-btn"));
+    buttons.forEach(btn => {
+      const content = btn.nextElementSibling;
+      content.style.display = "none";
+      function toggle(ev){
+        // prevent double triggers on touch
+        if (ev) ev.preventDefault();
+        buttons.forEach(other => {
+          if (other !== btn) {
+            other.classList.remove("active");
+            other.nextElementSibling.style.display = "none";
+          }
+        });
+        const active = btn.classList.contains("active");
+        btn.classList.toggle("active", !active);
+        content.style.display = active ? "none" : "block";
+      }
+      btn.addEventListener("click", toggle);
+      btn.addEventListener("touchstart", toggle, {passive:false});
+    });
+  })();
+</script>
+<script>
+  window.addEventListener('load', () => {
+    const screen = document.getElementById('loading-screen');
+    const visited = localStorage.getItem('visited');
+
+    if (!visited) {
+      screen.style.animation = 'firstBloom 5s forwards';
+      localStorage.setItem('visited', 'true');
+      setTimeout(() => {
+        screen.style.display = 'none';
+        document.body.classList.add('loaded');
+      }, 5000);
+    } else {
+      screen.style.animation = 'echoBloom 1.2s forwards';
+      setTimeout(() => {
+        screen.style.display = 'none';
+        document.body.classList.add('loaded');
+      }, 3200);
+    }
+  });
+</script>
+<style>
+  .floaty {
+    position: fixed;
+    pointer-events: auto;
+    opacity: 0.25;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+    user-select: none;
+    z-index: 10;
+  }
+  .floaty:hover {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+  .floaty.active {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px #A8FBD3);
+  }
+</style>
+
+<script>
+(function(){
+  const IMG_COUNT = 4; // floating icons
+  const IMAGES = [
+    'mcmd1.png',
+    'obg1.png',
+    'ob2.png'
+  ];
+
+  const FLASH_CHANCE = 0.09;
+  const FLASH_IMAGE = "vmspam.jpg"; // you replace later
+
+  function spawnFlash() {
+    const flash = document.createElement("img");
+    flash.src = FLASH_IMAGE;
+    flash.className = "flash-pop-in";
+
+    flash.style.position = "fixed";
+    flash.style.top = "50%";
+    flash.style.left = "50%";
+    flash.style.transform = "translate(-50%, -50%)";
+    flash.style.zIndex = "9999";
+    flash.style.maxWidth = "45vw";
+    flash.style.opacity = "0";
+
+    document.body.appendChild(flash);
+
+    setTimeout(()=> flash.style.opacity = "1", 50);
+
+    setTimeout(()=>{
+      flash.style.opacity = "0";
+      setTimeout(()=> flash.remove(), 800);
+    }, 4000);
+  }
+
+  for(let i = 0; i < IMG_COUNT; i++){
+    const img = document.createElement('img');
+    img.src = IMAGES[Math.floor(Math.random()*IMAGES.length)];
+    img.className = 'floaty';
+    img.style.width = `${Math.random()*32 + 16}px`;
+    img.style.top = `${Math.random()*100}vh`;
+    img.style.left = `${Math.random()*100}vw`;
+    img.style.position = `fixed`;
+    img.style.zIndex = "50";
+    document.body.appendChild(img);
+
+    let xSpeed = (Math.random() * 0.2 - 0.1);
+    let ySpeed = (Math.random() * 0.2 - 0.1);
+
+    function move(){
+      let x = parseFloat(img.style.left);
+      let y = parseFloat(img.style.top);
+      x += xSpeed;
+      y += ySpeed;
+
+      if(x > 100 || x < 0) xSpeed *= -1;
+      if(y > 100 || y < 0) ySpeed *= -1;
+
+      img.style.left = x + 'vw';
+      img.style.top = y + 'vh';
+      requestAnimationFrame(move);
+    }
+    move();
+
+    img.addEventListener('click', ()=>{
+
+      // random pop sound
+      const popSounds = ["pop1", "pop2", "pop3"];
+      const chosen = popSounds[Math.floor(Math.random() * popSounds.length)];
+      const popAudio = document.getElementById(chosen);
+      if (popAudio) {
+        popAudio.currentTime = 1;
+        popAudio.play().catch(()=>{});
+      }
+
+      // pop animation
+      img.style.transform = "scale(0.1)";
+      img.style.transition = "transform 0.15s";
+      setTimeout(()=> img.style.transform = "scale(1)", 150);
+
+      // rare flash
+      if(Math.random() < FLASH_CHANCE){
+        const flashAudio = document.getElementById("flash-sfx");
+        if (flashAudio) {
+          flashAudio.currentTime = 0;
+          flashAudio.play().catch(()=>{});
+        }
+        spawnFlash();
+      }
+    });
+  }
+})();
+</script>
+<script>
+// --- SELECTORS ---
+const tab = document.getElementById("info-tab");
+const panel = document.getElementById("terminal-panel");
+const closeBtn = document.getElementById("terminal-close");
+
+let infoOpen = false;
+
+// --- INFO TAB TOGGLE ---
+tab.addEventListener("click", () => {
+  playUIClick(); // ✅ here
+  if (!infoOpen) {
+    panel.style.left = "0";
+    infoOpen = true;
+  } else {
+    panel.style.left = "-70%";
+    infoOpen = false;
+  }
+});
+
+// --- CLOSE BUTTON ---
+closeBtn.addEventListener("click", () => {
+  if (typeof playUIClick === "function") playUIClick();
+  panel.style.left = "-70%";
+  infoOpen = false;
+});
+</script>
 <style>
 .accordion {
   margin-top: 20px;
@@ -359,55 +936,178 @@ for (let i = 0; i < acc.length; i++) {
   to {opacity: 1;}
 }
 </style>
-	
-	
-	<br><br>
-	
-	</b><br><br><br><br>
-	<hr>
-  </div>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
- <!-- Visitor Counter -->
-<div style="text-align:center; margin-top: 50px;">
-  <img src="https://visitor-badge.laobi.icu/badge?page_id=winterhyorei.overgrown" alt="Visitor count badge">
-  <p style="font-family: 'Courier New', monospace; color: #A8FBD3; font-size: 14px;">
-    // LIVE TRAFFIC: Recording Visitors to OverGrown Terminal
-  </p>
 
-<!-- Direct Access Button -->
-    <div style="text-align:center; margin-top: 20px;">
-      <button onclick="window.location.href='OverGrownArchiveTerminal.html'" style="
-        background:#0ff;
-        color:#000;
-        font-family:'Impact',sans-serif;
-        font-size:18px;
-        border:none;
-        border-radius:8px;
-        padding:12px 24px;
-        cursor:pointer;
-        box-shadow:0 0 10px #0ff;
-        transition:all 0.3s ease;">
-        ACCESS LIVE ARCHIVE
-      </button>
-    </div>
+<script>
+const buttons2 = document.querySelectorAll("#s2 .pandemic-btn");
+const bg2 = document.querySelector("#s2 .pandemic-bg");
+const term2 = document.querySelector("#s2 .pandemic-terminal");
+const closeBtn2 = document.querySelector("#s2 .close-terminal");
+let busy = false;
 
+function revealPandemic(img, text) {
+  if (busy) return;
+  busy = true;
+
+  term2.style.top = "-100%";
+  bg2.style.Left = "-100%";
+
+  setTimeout(() => {
+    bg2.style.backgroundImage = `url('${img}')`;
+    term2.textContent = text;
+
+    bg2.style.left = "0";
+
+    setTimeout(() => {
+      term2.style.top = "0";
+      busy = false;
+    }, 600);
+  }, 400);
+}
+
+buttons2.forEach(btn => {
+  btn.addEventListener("click", () => {
+    playUIClick(); // play sound
+    revealPandemic(btn.dataset.img, btn.dataset.text);
+  });
+});
+
+function closeS2Terminal() {
+  term2.style.top = "-100%";
+  bg2.style.left = "-100%";
+}
+
+closeBtn2.addEventListener("click", closeS2Terminal);
+
+window.addEventListener("scroll", () => {
+  const rect = term2.getBoundingClientRect();
+  if (rect.top < -200 || rect.top > window.innerHeight + 200) {
+    closeS2Terminal();
+  }
+});
+</script>
+<script>
+// Pandemic Terminal Logic
+const pandemicButtons = document.querySelectorAll(".pandemic-btn");
+const pandemicBG = document.querySelector(".pandemic-bg");
+const pandemicTerminal = document.querySelector(".pandemic-terminal");
+const pandemicClose = document.querySelector(".close-terminal");
+
+pandemicButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    
+    // Insert selected pandemic text + image
+    pandemicBG.style.backgroundImage = `url(${btn.dataset.img})`; // FIXED ✅
+    pandemicTerminal.textContent = btn.dataset.text;
+
+  // Reset animation instantly OFF-SCREEN
+pandemicBG.classList.remove("active");
+pandemicTerminal.classList.remove("active");
+
+// ✅ Force browser to apply the reset BEFORE animating again
+void pandemicBG.offsetWidth;
+void pandemicTerminal.offsetWidth;
+// remove animation classes
+pandemicBG.classList.remove("active");
+pandemicTerminal.classList.remove("active");
+
+// ⛓️ Force browser reflow (THIS is what the close button naturally triggered)
+void pandemicBG.offsetWidth;
+void pandemicTerminal.offsetWidth;
+
+// re-add animation classes
+pandemicBG.classList.add("active");
+pandemicTerminal.classList.add("active");
+
+// Re-activate animation cleanly
+pandemicBG.classList.add("active");
+pandemicTerminal.classList.add("active");
+
+  });
+});
+
+// ✅ Close terminal logic
+pandemicClose.addEventListener("click", () => {
+  pandemicBG.classList.remove("active");
+  pandemicTerminal.classList.remove("active");
+});
+
+// Play UI click sound
+function playUIClick() {
+  const clicks = ["ui-click-1", "ui-click-2", "ui-click-3"];
+  const chosen = clicks[Math.floor(Math.random() * clicks.length)];
+  const sound = document.getElementById(chosen);
+
+  if (!sound) {
+    console.warn("❌ UI sound element missing:", chosen);
+    return;
+  }
+
+  console.log("✅ Playing UI sound:", chosen);
+
+  sound.currentTime = 0;
+  sound.play().catch(err => {
+    console.warn("⚠️ Browser blocked sound:", err);
+  });
+}
+
+window.addEventListener("load", () => {
+  const bgm = document.getElementById("bgm");
   
-  
-  
-<marquee class="bottom-marquee" scrollamount="3" behavior="scroll" direction="left">	&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;	&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;<br>
-	///////     ///////     /////// | THIS IS ALL WE HAVE FOR NOW |     ////////     ///////     ///////     | INTELLECTUAL PROPERTY OF WINTERHYOREI |     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     | FOLLOW MY SOCIALS = Facebook.com/WinterHyorei |     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     | FOLLOW MY SOCIALS = Youtube.com/WinterHyorei |     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     ///////     ///////     ///////     ///////     ///////     ///////     //////     ///////     ///////     <br>
-    &#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;    &#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;&#x2B1B;&#x1F7E8;
+  // Try to play automatically
+  const playPromise = bgm.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      // If blocked, wait for user interaction
+      document.addEventListener("click", () => {
+        bgm.play();
+      }, { once: true });
+    });
+  }
+});
+
+const infoBtn = document.getElementById("infoBtn");
+const creditBox = document.getElementById("creditBox");
+const bgm = document.getElementById("bgm");
+
+// --- Single click: toggle credits ---
+infoBtn.addEventListener("click", (e) => {
+  e.stopPropagation(); // prevent document click from hiding immediately
+  creditBox.classList.toggle("show");
+});
+
+// --- Double click: toggle music ---
+infoBtn.addEventListener("dblclick", () => {
+  if (bgm.paused) {
+    bgm.play();
+  } else {
+    bgm.pause();
+  }
+});
+
+infoBtn.addEventListener("dblclick", () => {
+  if (bgm.paused) {
+    bgm.play();
+    infoBtn.textContent = "i🔊"; // optional visual feedback
+  } else {
+    bgm.pause();
+    infoBtn.textContent = "i🔇"; // optional visual feedback
+  }
+});
+
+</script>
 
 
-	</marquee>
+
+<audio id="pop1" src="pop1.wav" preload="auto"></audio>
+<audio id="pop2" src="pop2.wav" preload="auto"></audio>
+<audio id="flash-sfx" src="adscare.flac" preload="auto"></audio>
+<!-- UI Click Sounds -->
+<audio id="ui-click-1" src="terminal.wav"></audio>
+<audio id="ui-click-2" src="pandemictabs.wav"></audio>
+<audio id="ui-click-3" src="click3.mp3"></audio>
+<audio id="bgm" autoplay loop hidden>
+  <source src="bgm.mp3" type="audio/mpeg">
+</audio>
 </body>
 </html>
