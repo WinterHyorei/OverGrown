@@ -1321,6 +1321,272 @@ body.official-mode #horror-vignette {
   height:30px;
 }
 
+/* =========================================
+   MOBILE + TABLET LANDSCAPE RESPONSIVE FIX
+========================================= */
+
+@media screen and (max-width: 1024px) {
+
+  body{
+    overflow-x:hidden;
+  }
+
+  /* =========================
+     LANDING SCREEN
+  ========================= */
+
+  .landing-logo{
+    width:90vw;
+    max-width:700px;
+    height:auto;
+  }
+
+  #enter-site{
+    position:relative;
+    top:auto;
+    right:auto;
+    margin-top:20px;
+    width:80vw;
+    max-width:300px;
+    font-size:14px;
+    padding:12px;
+  }
+
+  /* =========================
+     MAIN LOGO
+  ========================= */
+
+  :root{
+    --logo-width: 85vw;
+    --logo-y: 40%;
+  }
+
+  #logo img{
+    width:85vw;
+    max-width:800px;
+  }
+
+  /* =========================
+     CREATOR
+  ========================= */
+
+  #creator{
+    top:auto;
+    bottom:20px;
+    right:20px;
+  }
+
+  #creator img{
+    width:140px;
+  }
+
+  /* =========================
+     SIDE TABS
+  ========================= */
+
+  .side-nav-tab{
+    width:40px;
+    height:120px;
+    font-size:12px;
+    padding:10px;
+  }
+
+  .side-nav-tab:hover{
+    width:55px;
+  }
+
+  /* =========================
+     TERMINAL PANEL
+  ========================= */
+
+  #terminal-panel{
+    width:100%;
+    max-width:none;
+  }
+
+  .terminal-body{
+    padding:20px;
+    font-size:14px;
+  }
+
+  /* =========================
+     PANDEMIC SECTION
+  ========================= */
+
+  .pandemic-section{
+    flex-direction:column;
+  }
+
+  .pandemic-menu{
+    width:100%;
+    height:220px;
+    border-right:none;
+    border-bottom:1px solid cyan;
+
+    display:flex;
+    gap:10px;
+
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+
+  .pandemic-btn{
+    min-width:220px;
+    flex-shrink:0;
+    margin-bottom:0;
+  }
+
+  .pandemic-terminal{
+    padding:20px;
+    font-size:14px;
+  }
+
+  /* =========================
+     OFFICIAL WINDOW
+  ========================= */
+
+  .official-header{
+    padding:10px;
+    flex-wrap:wrap;
+    gap:10px;
+    height:auto;
+  }
+
+  .official-nav{
+    gap:15px;
+  }
+
+  .official-logo{
+    position:relative;
+    top:auto;
+    right:auto;
+    width:180px;
+    margin:20px auto;
+    display:block;
+  }
+
+  .official-menu{
+    position:relative;
+    top:auto;
+    right:auto;
+
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+
+    padding:20px;
+  }
+
+  .img-btn{
+    padding:10px;
+  }
+
+  .img-btn img{
+    width:180px;
+  }
+
+  /* =========================
+     IFRAME WINDOW
+  ========================= */
+
+  #iframe-window{
+    left:0 !important;
+    top:0 !important;
+
+    width:100vw;
+    height:100vh;
+
+    border:none;
+  }
+
+  .iframe-header{
+    height:50px;
+  }
+
+  /* =========================
+     AUTH WINDOW
+  ========================= */
+
+  #auth-window{
+    top:50%;
+    left:50%;
+
+    right:auto;
+
+    transform:translate(-50%, -50%);
+
+    width:90vw;
+    max-width:400px;
+  }
+
+  /* =========================
+     IDENTITY PANELS
+  ========================= */
+
+  .identity-panel{
+    width:85vw;
+    right:-90vw;
+  }
+
+  .identity-panel.open{
+    right:0;
+  }
+
+  /* =========================
+     RIGHT BUTTONS
+  ========================= */
+
+  #rightButtons{
+    top:auto;
+    bottom:20px;
+  }
+
+  .sideBtn{
+    padding:10px;
+    font-size:12px;
+  }
+
+  /* =========================
+     REMOVE DECORATIVE BARS
+  ========================= */
+
+  .square,
+  .square2{
+    display:none;
+  }
+
+}
+
+
+/* =========================================
+   PHONE LANDSCAPE EXTRA FIX
+========================================= */
+
+@media screen and (max-width: 900px) and (orientation: landscape){
+
+  .landing-logo{
+    width:65vw;
+  }
+
+  #logo img{
+    width:65vw;
+  }
+
+  .official-logo{
+    width:120px;
+  }
+
+  .pandemic-menu{
+    height:160px;
+  }
+
+  .pandemic-terminal{
+    font-size:13px;
+  }
+
+}
+
 </style>
 </head>
 
