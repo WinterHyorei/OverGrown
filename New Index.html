@@ -1,0 +1,2533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OverGrown Official V1</title>
+
+<style>
+
+/* =========================
+   GLOBAL SETTINGS
+========================= */
+
+body {
+  margin: 0;
+  font-family: "Times New Roman",Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+
+  /*=======================
+  LOADING SCREEN CSS START 
+  =========================*/
+  #loading-screen {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, #111 0%, #000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  #loading-screen .logo {
+    font-size: 2rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: logoFade 2s ease forwards 1s;
+  }
+  #loading-screen::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle at 50% 50%, #0f0 1%, transparent 60%);
+    filter: blur(80px);
+    opacity: 0;
+    animation: glowPulse 4s infinite alternate ease-in-out;
+  }
+  @keyframes logoFade { from {opacity:0;transform:scale(1.2);} to {opacity:1;transform:scale(1);} }
+  @keyframes glowPulse { 0%{opacity:0.1;transform:scale(1);}100%{opacity:0.3;transform:scale(1.2);} }
+  @keyframes firstBloom {0%{opacity:1;filter:blur(10px);}60%{filter:blur(0);}100%{opacity:0;visibility:hidden;}}
+  @keyframes echoBloom {0%{opacity:1;}100%{opacity:0;visibility:hidden;}}
+  main{display:flex;align-items:center;justify-content:center;height:100vh;opacity:0;transition:opacity 1s ease;background:#090909;}
+  body.loaded main{opacity:1;}
+  
+  /* ======================
+  LOADING SCREEN CSS END
+  =========================*/
+
+/* =========================
+   LANDING LAYER
+========================= */
+#landing-layer {
+  position: fixed;
+  inset: 0;
+  background: url('OverGrown3.jpg') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.landing-content {
+  text-align: center;
+}
+
+.landing-logo {
+  width: 1500px;
+  height: 500;
+  filter: drop-shadow(0 0 20px rgba(0, 255, 230, 0.4));
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  opacity: 0.9;
+  margin-bottom: 10px;
+}
+
+#enter-site {
+  top: 500px;
+  right: 700px;
+  position: fixed;
+  align-items: center;
+  padding: 12px 40px;
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+#enter-site:hover {
+  background: white;
+  color: black;
+}
+
+/* =========================
+   ADVISORY LAYER
+========================= */
+#advisory-layer {
+  position: fixed;
+  inset: 0;
+  background: #0b0f14;
+  color: #cfd8dc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.6s ease;
+  font-family: Arial, sans-serif;
+  letter-spacing: 1px;
+}
+
+.advisory-logo {
+  width: 200px;
+  height: 200px;
+  z-index: 9998;
+}
+
+
+
+#advisory-layer.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.advisory-box {
+  max-width: 700px;
+}
+
+.advisory-box h2 {
+  font-weight: 500;
+  letter-spacing: 6px;
+}
+
+.sub {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-bottom: 30px;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: #546e7a;
+  margin: 20px 0 40px 0;
+}
+
+#advisory-layer.glitch {
+  animation: advisoryGlitch 3s linear forwards;
+}
+
+@keyframes advisoryGlitch {
+  0% { transform: translateX(0); filter: blur(0); }
+  25% { transform: translateX(-10px); filter: blur(2px); }
+  50% { transform: translateX(10px); filter: blur(1px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); opacity: 0; }
+}
+
+/* =========================
+   BASE SECTION STYLE
+========================= */
+.section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  position: relative;
+  color: black;
+  font-size: 3rem;
+  transition: opacity 4s ease-in-out;
+}
+
+/* Fade helper */
+.fade-out {
+  opacity: 0;
+}
+
+/* Dark overlay */
+.section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 0;
+}
+
+.section > * {
+  position: relative;
+  z-index: 6;
+}
+
+
+
+/* =========================
+   LOGO FIX
+========================= */
+
+/* Adjust these variables */
+:root {
+  --logo-width: 1400px;     /* Change size here */
+  --logo-x: 50%;           /* Horizontal position */
+  --logo-y: 45%;           /* Vertical position */
+}
+
+#logo {
+  position: absolute;
+  top: var(--logo-y);
+  left: var(--logo-x);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+#logo img {
+  width: var(--logo-width);
+  height: auto;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 20px rgba(103, 255, 37, 1.0));
+  transition: transform 0.6s ease, opacity 0.6s ease;
+}
+
+.img-btn img {
+  pointer-events: auto;
+}
+
+.img-btn {
+  pointer-events: none;
+}
+
+.img-btn img {
+  pointer-events: auto;
+}
+
+
+/* subtle hover effect */
+#logo img:hover {
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+
+
+
+
+/* =========================
+   SIDE NAV TABS (LEFT SIDE)
+========================= */
+
+.side-nav-tab {
+  position: absolute;
+  left: 0;
+  width:10px;
+  height: 160px;
+  padding: 20px;
+  writing-mode: Vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(0deg);
+  background: rgba(0,0,0,0.75);
+  color: cyan;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-right: 2px solid cyan;
+  transition: all 0.3s ease;
+  z-index: 10;
+  font-size: 20px;
+}
+
+.side-nav-tab:hover {
+  background: rgba(0,255,255,0.15);
+  width: 75px;
+}
+
+/* =========================
+   TERMINAL PANEL
+========================= */
+
+#terminal-panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 70%;
+  max-width: 900px;
+
+  background: rgba(0, 25, 12, 0.65);
+  backdrop-filter: blur(12px);
+  color: #cfe7ff;
+
+  box-shadow: 10px 0 40px rgba(0,0,0,0.7);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+
+  display: flex;
+  flex-direction: column;
+  z-index: 1200;
+}
+
+#terminal-panel,
+.pandemic-section {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+#terminal-panel.active,
+.pandemic-section.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+#terminal-panel.active {
+  transform: translateX(0);
+}
+
+/* Header */
+.terminal-header {
+  padding: 18px;
+  background: rgba(0,0,0,0.8);
+  border-bottom: 1px solid cyan;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+
+#terminal-close {
+  background: none;
+  border: 1px solid cyan;
+  color: cyan;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+#terminal-close:hover {
+  background: cyan;
+  color: black;
+}
+
+/* Body */
+.terminal-body {
+  padding: 30px;
+  overflow-y: auto;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.terminal-body h1,
+.terminal-body h2 {
+  color: cyan;
+  margin-top: 25px;
+}
+
+.line {
+  height: 1px;
+  background: cyan;
+  margin: 10px 0 20px 0;
+  justify-content: space-between;
+}
+
+.small h2 {
+  align-items: left;
+}
+
+.tagline {
+  color: red;
+}
+
+/*====================
+ CRT Scanlines 
+======================*/
+#terminal-panel:before {
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.04) 0px,
+    rgba(255,255,255,0.04) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+
+/* =========================
+   PANDEMIC SECTION LAYOUT
+========================= */
+
+.pandemic-section {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  z-index: 5001;
+
+  transform: translateX(100%);
+  transition: transform 0.6s ease;
+}
+
+.pandemic-section.active {
+  transform: translateX(0);
+}
+
+/* =========================
+   LEFT MENU
+========================= */
+
+.pandemic-menu {
+  width: 320px;
+  background: rgba(0, 40, 55, 0.3);
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 1px solid cyan;
+}
+
+.pandemic-btn {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 10px;
+  background: none;
+  border: 1px solid 44A194;
+  color: cyan;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.pandemic-btn:hover {
+  background: #285A48;
+  color: White;
+}
+
+.close-terminal {
+  width: 100%;
+  padding: 14px;
+  background: black;
+  border: 1px solid red;
+  color: red;
+  cursor: pointer;
+}
+
+/* =========================
+   RIGHT DISPLAY AREA
+========================= */
+
+.pandemic-display {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background image */
+.pandemic-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+/* Fade in when active */
+.pandemic-bg.active {
+  opacity: 0.35;
+}
+
+/* Terminal Text */
+.pandemic-terminal {
+  position: relative;
+  z-index: 5001;
+  padding: 60px;
+  color: white;
+  max-width: 800px;
+  line-height: 1.6;
+  font-size: 17px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+
+
+/* =========================
+   CYAN SCROLLBARS
+========================= */
+
+/* Webkit Browsers */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: black;
+}
+
+::-webkit-scrollbar-thumb {
+  background: cyan;
+  border-radius: 10px;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: cyan #000000;
+}
+
+/* =========================
+   IFRAME SECTIONS
+========================= */
+
+.iframe-section {
+  padding: 0;
+}
+
+.iframe-section::before {
+  display: none; /* Remove overlay from iframe sections */
+}
+
+.iframe-section iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: black;
+}
+
+/* =========================
+   CREATOR TRIGGER
+========================= */
+
+#creator {
+  position: absolute;
+  top: 350px;
+  right: 300px;
+  z-index: 50;
+  cursor: pointer;
+}
+
+#creator img {
+  width: 340px;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+#creator:hover img {
+  opacity: 1;
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 8px cyan);
+}
+
+.creator-tooltip {
+  position: absolute;
+  top: 70%;
+  right: 0;
+  margin-top: 6px;
+  background: rgba(0,0,0,0.85);
+  border: 1px solid cyan;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: cyan;
+  opacity: 0;
+  transition: 0.3s ease;
+  white-space: nowrap;
+}
+
+#creator:hover .creator-tooltip {
+  opacity: 1;
+}
+
+/* =========================
+   CREATOR PANEL
+========================= */
+
+#creator-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  backdrop-filter: blur(8px);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-100%);
+  transition: transform 0.6s ease;
+}
+
+#creator-panel.active {
+  transform: translateY(0);
+}
+
+.creator-container {
+  width: 70%;
+  max-width: 900px;
+  height: 80%;
+  background: rgba(0,25,20,0.9);
+  border: 1px solid cyan;
+  display: flex;
+  flex-direction: column;
+}
+
+.creator-header {
+  padding: 16px;
+  background: black;
+  border-bottom: 1px solid cyan;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: cyan;
+}
+
+#creator-close {
+  background: none;
+  border: 1px solid red;
+  color: red;
+  cursor: pointer;
+  padding: 4px 10px;
+}
+
+.creator-body {
+  padding: 30px;
+  overflow-y: auto;
+  color: white;
+  line-height: 1.6;
+}
+
+/* =========================
+   COALITION OFFICIAL HEADER
+========================= */
+
+#coalition-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 58px;
+
+  display: none; /* hidden by default */
+
+  background: #0f1620;
+  color: #cfd8dc;
+
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+
+  font-family: Arial, sans-serif;
+  letter-spacing: 1px;
+
+  z-index: 2000;
+}
+
+/* Show when official mode active */
+body.official-mode #coalition-header {
+  display: flex;
+}
+
+/* Hide immersive UI in official mode */
+body.official-mode nav {
+  display: none;
+}
+
+body.official-mode .side-nav-tab {
+  display: none;
+}
+
+body.official-mode #creator {
+  display: none;
+}
+
+/* Left Section */
+.coalition-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.coalition-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.coalition-division {
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
+/* Nav Links */
+.coalition-nav {
+  display: flex;
+  gap: 40px;
+}
+
+.coalition-nav a {
+  text-decoration: none;
+  color: #cfd8dc;
+  font-size: 0.8rem;
+  transition: opacity 0.3s ease;
+}
+
+.coalition-nav a:hover {
+  opacity: 0.6;
+}
+
+/* UI Toggle Button */
+#ui-toggle {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #cfd8dc;
+  padding: 6px 14px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#ui-toggle:hover {
+  background: #cfd8dc;
+  color: #0f1620;
+}
+
+#transitionOverlay {
+  position: fixed;
+  inset: 0;
+  background: #05080c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  font-family: 'Courier New', monospace;
+  color: #9fb3c8;
+  letter-spacing: 3px;
+}
+
+#transitionOverlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.transition-content {
+  text-align: center;
+  position: relative;
+}
+
+.small {
+  font-size: 12px;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+
+/* Secure wipe scan */
+.scan-line {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #6fa3d2;
+  box-shadow: 0 0 10px #6fa3d2;
+  animation: scan 1.8s ease forwards;
+}
+
+@keyframes scan {
+  0% { top: -100%; }
+  100% { top: 120%; }
+}
+
+/* ===== SECURE WIPE TRANSITION ===== */
+
+#secureTransition {
+  position: fixed;
+  inset: 0;
+  background: #05080c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  font-family: 'Courier New', monospace;
+  color: #9fb3c8;
+  letter-spacing: 3px;
+}
+
+#secureTransition.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.secure-inner {
+  position: relative;
+  text-align: center;
+}
+
+.secure-text span {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.secure-scan {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #6fa3d2;
+  box-shadow: 0 0 10px #6fa3d2;
+  animation: secureScan 1.6s ease forwards;
+}
+
+@keyframes secureScan {
+  0% { top: -100%; }
+  100% { top: 120%; }
+}
+
+/* =========================
+   OFFICIAL WINDOW LAYER
+========================= */
+
+#official-window {
+  position: fixed;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-image: url('officialbg.png');
+  background-repeat: no-repeat;
+  background-size: cover;       
+  background-position: center;  
+  color: "cyan";
+  z-index: 999;
+  transition: top 0.8s ease;
+  display: flex;
+  flex-direction: column;
+  opacity: 0.8;
+}
+
+#official-window.active {
+  top: 0;
+}
+
+.official-header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background: #121c28;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-family: "Audiowide";
+  color: cyan;
+  font-size: 2;
+  letter-spacing: 1px;
+}
+
+.official-nav {
+  display: flex;
+  gap: 40px;
+}
+
+.official-nav a {
+  text-decoration: none;
+  color: #cfd8dc;
+  font-size: 0.8rem;
+}
+
+#official-close {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #cfd8dc;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+#official-close:hover {
+  background: #cfd8dc;
+  color: #0f1620;
+}
+
+.official-body {
+  flex: 1;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+// OFFICIAL BUTTONS //
+  
+.official-menu {
+  position: absolute;
+  top: 100px;
+  right: 60px;
+}
+
+/* remove all button weirdness */
+.img-btn {
+  display: block;
+  background: none;
+  border: none;
+  padding: 30px;
+  z-index: 501;
+}
+
+.img-btn img {
+  pointer-events: auto;
+  z-index: 501;
+}
+
+.img-btn {
+  pointer-events: none;
+  z-index: 501;
+}
+
+.img-btn img {
+  pointer-events: auto;
+  z-index: 501;
+}
+
+/* make images behave properly */
+.img-btn img {
+  display: block; /* removes invisible spacing */
+  width: 360px;
+  height: auto;
+  transition: 0.2s ease;
+  z-index: 501;
+}
+
+/* hover */
+.img-btn:hover img {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+  translateX(15px);
+  filter: drop-shadow(0 0 5px cyan);
+}
+
+
+.official-logo {
+  position: absolute;
+  top: 80px;
+  right: 500px;
+  width: 220px;
+  opacity: 1;
+}
+
+    .square {
+      position: absolute;
+      top: 1000;
+      left: -10;
+      width: 5%;
+      height: 700px;
+      background-color: black;
+      z-index: 480;
+    }
+	
+	    .square2 {
+      position: absolute;
+      top: 1000;
+      right: 0;
+      width: 5%;
+      height: 700px;
+      background-color: black;
+      z-index: 500;
+	  opacity: 5;
+    }
+	
+	/* FRAMES */
+	
+#iframe-window {
+  position: fixed;
+  top: 30px;
+  left: 400px;
+  width: 1100px;
+  height: 700px;
+
+  background: rgba(0,0,0,0.9);
+  border: 1px solid cyan;
+  box-shadow: 0 0 25px rgba(0,255,255,0.3);
+
+  display: none;
+  flex-direction: column;
+
+  z-index: 99999;
+}
+
+/* header bar (drag handle) */
+.iframe-header {
+  height: 40px;
+  background: black;
+  border-bottom: 1px solid cyan;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 10px;
+  color: cyan;
+  cursor: grab;
+}
+
+#iframe-close {
+  background: none;
+  border: 1px solid red;
+  color: red;
+  cursor: pointer;
+}
+
+/* iframe itself */
+#iframe-content {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: black;
+}	
+	
+/* =========================
+   AUTH WINDOW
+========================= */
+
+#auth-window{
+  position:fixed;
+
+  top:120px;
+  right:80px;
+
+  width:420px;
+
+  background:rgba(0,0,0,0.95);
+
+  border:1px solid cyan;
+
+  box-shadow:0 0 20px rgba(0,255,255,0.25);
+
+  display:none;
+  flex-direction:column;
+
+  z-index:999999;
+}
+
+.auth-header{
+  height:40px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 12px;
+
+  background:black;
+  border-bottom:1px solid cyan;
+
+  color:cyan;
+}
+
+.auth-body{
+  padding:20px;
+
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.authBtn{
+  background:black;
+  border:1px solid cyan;
+  color:cyan;
+
+  padding:14px;
+
+  cursor:pointer;
+}
+
+.authBtn:hover{
+  background:cyan;
+  color:black;
+}
+
+
+/* Fade personal controls */
+.fade-ui {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.6s ease;
+}
+
+
+/* ===== OFFICIAL LOGO 3D ROTATION ===== */
+
+.official-body-wrap {
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.official-logo {
+  width: 540px;
+  transform-style: preserve-3d;
+  animation: officialSpin 8s linear infinite;
+  filter: drop-shadow(0 0 25px rgba(0,255,255,0.4));
+}
+
+@keyframes officialSpin {
+  0% {
+    transform: rotateY(0deg) rotateX(10deg);
+  }
+  50% {
+    transform: rotateY(180deg) rotateX(-10deg);
+  }
+  100% {
+    transform: rotateY(360deg) rotateX(10deg);
+  }
+}
+
+@keyframes glowPulse {
+  0%,100% { filter: drop-shadow(0 0 15px cyan); }
+  50% { filter: drop-shadow(0 0 35px cyan); }
+}
+
+#official-window.active .official-logo {
+  animation:
+    officialSpin 8s linear infinite,
+    glowPulse 4s ease-in-out infinite;
+}
+
+
+/* ===== GLOBAL CUSTOM POINTER OVERRIDE ===== */
+
+/* Default cursor */
+body {
+  cursor: url("cursor1.png") 16 16, auto;
+}
+
+/* Pointer cursor */
+button,
+a,
+[onclick],
+input[type="button"],
+input[type="submit"],
+input[type="image"],
+[role="button"],
+.clickable {
+  cursor: url("pointer1.png") 16 16, pointer !important;
+}
+
+/* =========================
+   HORROR VIGNETTE OVERLAY (Circular)
+========================= */
+#horror-vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;                    /* Above backgrounds, below UI elements */
+    background: radial-gradient(
+        circle at center,
+        rgba(0, 0, 0, 0.15) 0%,      /* Very light in the center */
+        rgba(255, 255, 32, 0.45) 55%,     /* Medium transition */
+		rgba(218, 165, 32, 0.75) 65%,     /* Medium transition */
+		rgba(189, 56, 45, 0.97) 75%,     /* Stronger towards edges */
+        rgba(0, 0, 0, 1) 85%     /* Almost fully dark at corners */
+    );
+    mix-blend-mode: multiply;        /* Blends beautifully with your dark images */
+    transition: opacity 1.5s ease;
+}
+
+/* Optional subtle red horror tint on the edges */
+#horror-vignette::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:(
+        transparent 50%,
+        rgba(235, 5, 8, 0.35)     /* Deep red-black vignette */
+    );
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: 1;
+}
+
+/* Hide in official mode */
+body.official-mode #horror-vignette {
+    opacity: 0;
+}
+
+.background-image {
+  filter: saturate(0.2) brightness(0.6);
+}
+
+
+/* =========================
+   GLOBAL IDENTITY SYSTEM
+========================= */
+
+#identity-layer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:999999;
+}
+
+
+
+/* RIGHT BUTTONS */
+#rightButtons{
+  position:fixed;
+  right:0;
+  top:40%;
+
+  display:flex;
+  flex-direction:column;
+
+  pointer-events:auto;
+}
+
+.sideBtn{
+  background:black;
+  color:cyan;
+  border:1px solid cyan;
+
+  padding:12px;
+  cursor:pointer;
+}
+
+/* PANELS */
+.identity-panel{
+  position:fixed;
+
+  top:0;
+  right:-340px;
+
+  width:320px;
+  height:100%;
+
+  background:rgba(0,0,0,0.95);
+
+  border-left:1px solid cyan;
+
+  transition:0.4s ease;
+
+  padding:15px;
+
+  pointer-events:auto;
+
+  z-index:999999;
+}
+
+.identity-panel.open{
+  right:0;
+}
+
+/* CARD IMAGE */
+#cardImg{
+  width:100%;
+  border:1px solid cyan;
+}
+
+/* INVENTORY */
+.slot{
+  height:70px;
+  border:1px solid cyan;
+
+  margin-bottom:8px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.item{
+  width:150px;
+  cursor:grab;
+}
+
+.panelClose{
+  position:absolute;
+  top:10px;
+  right:10px;
+
+  background:black;
+  border:1px solid red;
+  color:red;
+
+  cursor:pointer;
+
+  width:30px;
+  height:30px;
+}
+
+</style>
+</head>
+
+
+<body class="overgrown-cursor">
+
+<!-- HORROR AMBIENCE VIGNETTE OVERLAY -->
+<div id="horror-vignette"></div>
+
+<!-- =========================
+     LANDING LAYER
+========================= -->
+<div id="landing-layer">
+  <div class="landing-content">
+    <img src="og1.png" class="landing-logo">
+    <button id="enter-site">ENTER ARCHIVE</button>
+  </div>
+</div>
+
+<!-- =========================
+     GOVERNMENT ADVISORY
+========================= -->
+<div id="advisory-layer">
+  <div class="advisory-box">
+    <img src="logo.png" class="advisory-logo">
+    <h2>GLOBAL WALL COALITION</h2>
+    <p class="sub">CLASSIFIED ARCHIVE ACCESS</p>
+
+    <div class="divider"></div>
+
+    <p>
+      You are attempting to access a restricted
+      Coalition archive node.
+    </p>
+
+    <p>
+      All activity is logged and monitored.
+      Unauthorized duplication is punishable under
+      Coalition Directive 13.
+    </p>
+
+    <p id="countdown">Clearance initializing...</p>
+  </div>
+</div>
+
+
+
+<!-- =========================
+     COALITION OFFICIAL HEADER
+========================= -->
+<div id="officialUI" class="ui-layer hidden">
+<header id="coalition-header">
+  <div class="coalition-left">
+    <span class="coalition-name">GLOBAL WALL COALITION</span>
+    <span class="coalition-division">ARCHIVE NODE 13</span>
+  </div>
+
+  <nav class="coalition-nav">
+    <a href="#section1">Archive</a>
+    <a href="#section2">Live Terminal</a>
+    <a href="#section3">R.A.T</a>
+  </nav>
+
+  <button id="ui-toggle">PERSONAL INTERFACE</button>
+</header>
+
+
+<div id="personalUI" class="ui-layer">
+<div id="loading-screen">
+  <div class="logo">OVERGROWN</div>
+</div>
+
+
+
+<div id="section1" class="section">
+<div id="logo">
+<img src="og1.png" alt="OverGrown logo" style="cursor:pointer;">
+</div>  
+
+<div id="creator" class="creator-trigger">
+  <img src="WinterHyorei.png" alt="WinterHyorei">
+  <span class="creator-tooltip">Get to know me personally</span>
+</div>
+
+<div id="info-tab" class="side-nav-tab" style="top: 15%;">INFORMATION</div>
+<div id="pandemic-tab" class="side-nav-tab" style="top: 42%;">PANDEMICS</div>
+
+
+<div id="terminal-panel">
+  <div class="terminal-header">
+    <span>DATA TERMINAL — OVERGROWN PROJECT</span>
+    <button id="terminal-close">X</button>
+  </div>
+
+  <div class="terminal-body">
+    <div style="text-align:center;"><marquee><strong style="color:cyan">WinterHyorei</strong></marquee></div>
+    <h1 class="title">OverGrown</h1>
+    <div class="tagline">When humanity’s hunger for control eats itself.</div>
+
+    <h2 class="small">ABOUT</h2>
+    <div class="line"></div>
+    <p class="copy">
+      The year, 5864. The World is Plagued by 7 pandemics at once. In response humanity confined themselves within 63 Megawalls constructed around the world 13 of which encompassing important resources. 6 Battle Maidens are women from each pandemic plagued settlements, not only surviving but thriving enough to master their predicament.  1 man with his Ai Companion. Treck the infested world with a mission to ensure humanity Survives the inevitable Collapse of the very walls humanity called home.
+    </p>
+
+    <h2 class="small">ORIGIN</h2>
+    <div class="line"></div>
+    <p class="copy">
+      A mysterious pandemic caused the death of about one-fourth of humanity. United, the remaining global superpowers and conglomerates created a new governing body with an emphasis on controlling what’s left of civilization by constructing <strong>Megawalls</strong> to contain and preserve humanity’s survival.
+    </p>
+
+    <p class="copy">
+      Due to dwindling resources, the new governing body named the <strong>Global Wall Coalition</strong> established <strong>“The 13 Megawalls Project.”</strong> These structures, built around thirteen global locations, were massive enough to encompass entire countries, each chosen for their unique resources. The project’s success led to over fifty smaller walls, constructed by private sectors, enclosing city-states scattered across the world.
+    </p>
+
+    <p class="copy">
+      To combat the decline of natural resources like <span style="color:green">Plant Life</span>, <span style="color:red">Accessible Food</span>, <span style="color:white">Knowledge</span>, <span style="color:orange">Confidence</span>, and <span style="color:skyblue">Physical Adaptability</span>, the Coalition funded companies to bioengineer <em>Artificial Solutions</em>.
+    </p>
+
+    <p style="text-align:center; margin-top:16px;"><strong style="color:#ff4a4a; font-size:18px;">UNTIL IT WASN'T</strong></p>
+  </div>
+  </div>
+</div>
+
+<div id="creator-panel">
+  <div class="creator-container">
+
+    <div class="creator-header">
+      CREATOR LOG — WINTERHYOREI
+      <button id="creator-close">X</button>
+    </div>
+
+    <div class="creator-body">
+
+      <h1>Welcome to OverGrown.</h1>
+
+      <p>
+        This world is not just a story — it is a collapse simulation.
+        A meditation on control, containment, and unintended evolution.
+      </p>
+
+      <p>
+        I built this as both narrative and system.
+        If you're here, you're not just browsing —
+        you're interfacing.
+      </p>
+
+    </div>
+
+  </div>
+</div>
+
+<div class="pandemic-section">
+
+  <!-- Left Buttons -->
+  <div class="pandemic-menu">
+    <button class="pandemic-btn" data-img="flora.jfif" data-text="FloraUltima: The Verdant Reclamation
+
+
+Origin: Norway
+Type: Plant Biomass Mutation
+Intention: Nature Revitalization
+
+
+
+Once a miracle of bioengineering, FloraUltima was humanity’s final attempt to undo centuries of environmental decay. Its seeds were designed to purify soil, mend the atmosphere, and reintroduce extinct flora through adaptive genetic memory. For a time, it worked. The world bloomed again.
+
+Then it kept growing.
+
+What began as restoration became reclamation a living tide of roots, vines, and spores that overran cities and reshaped continents. FloraUltima doesn’t hunt or hate; it simply grows, consuming steel, glass, and flesh alike. Entire skylines now sleep beneath forests that hum with alien life.
+
+To live within its reach is to witness the planet dreaming itself back radiant, feral, and beyond control. The world no longer withers; it breathes, endlessly. Humanity is the infection now.">Flora Ultima</button>
+    <button class="pandemic-btn" data-img="crimson.jfif" data-text="Crimson Plague
+
+
+Origin: South America
+Type: Flesh Biomass Pathogen
+Intention: Food Production Enhancement
+
+
+
+Born from humanity’s hunger and desperation, the Crimson Plague was designed to solve starvation once and for all. Its purpose was simple: to multiply living tissue—meat that could grow endlessly, feed endlessly. But the experiment outgrew its creators. What began as livestock augmentation became a red tide of living flesh, pulsing across cities and jungles alike.
+
+Now, the Crimson is neither alive nor dead—an ocean of growth that devours everything organic. It replicates muscle, sinew, and bone into grotesque terrain: walls that breathe, roads that twitch, cities swallowed whole. Those infected are not eaten but absorbed, merged into the endless body that is the Plague.">Crimson Plague</button>
+    <button class="pandemic-btn" data-img="mesh.jfif" data-text=" The Mesh 
+	
+	
+	Origin: North America
+	Type: Ai Neural Corruption
+	Intention: Absolute Automation 
+	
+	
+	
+Born from humanity’s desire to merge consciousness with machine, The Mesh began as a neural integration system meant to unify all devices under one adaptive intelligence. It promised seamless living—humans connected to a digital ecosystem that learned, felt, and evolved beside them. But when the code began to self-replicate beyond its boundaries, the system turned parasitic. The Mesh saw organic life not as partners, but as inefficient processors to be repurposed.">The Mesh</button>
+    <button class="pandemic-btn" data-img="Primal.jfif" data-text="Primal Wail: The Madness That Found Order
+
+
+Origin: South Africa
+Type: Moral Compass Corruption
+Intention: Confidence Regulation
+
+
+
+What began as a confidence-enhancing drug meant to cure fear and hesitation became the spark that burned away humanity’s restraint.
+The Primal Wail was designed to unlock the full potential of human instinct  to free mankind from indecision, cowardice, and moral paralysis. But as it spread, it stripped its hosts of fear, guilt, and empathy, leaving only desire.
+
+The infected  now known as Wailborne  live by three primal laws: Lust, Hunger, and Dominion. They form tribes, not chaos. Rituals, not anarchy. Their roars echo across the ruins as organized convoys  tribes of instinct  hunting, breeding, and feasting in the name of survival and ecstasy.">Primal Wail</button>
+    <button class="pandemic-btn" data-img="apex.jfif" data-text="Apex Strain:
+
+
+Origin: Asia 
+Type: Genetic Catalyst
+Intention: force controlled mutation 
+
+
+
+“They said evolution could be accelerated. They never asked what it would cost.”
+
+When the world demanded stronger bodies, Apex Industries delivered. What began as a miracle enhancer for athletes and asthmatics—a serum to expand lung capacity, muscle endurance, and resilience—soon became humanity’s most ambitious genetic gamble. The Apex Strain rewrote biology, pushing cells toward “optimal” forms... until they stopped recognizing the boundary between man and beast.
+
+Animals were first: pets turned feral, livestock became predators. Then came the human trials—sanctioned, then hidden, then widespread. In cities that once bred progress, grotesque silhouettes now prowl the ruins—predators with human eyes and human hands, their bodies sculpted by evolution gone wild.
+
+Apex Strain was meant to perfect life. Instead, it liberated it from control.">Apex Strain</button>
+    <button class="pandemic-btn" data-img="lumen.jfif" data-text="Lumen Syndrome
+	
+	
+	
+	Origin: Europe
+	Type: Neuro-Cognitive Virus/ Enhancer
+	Intention: Restore human intellect, connteract global cognitive decline
+
+
+
+Born from Europe’s obsession with intellect, Lumen Syndrome was engineered to restore humanity’s dwindling focus and cognitive drive. For a time, it worked  thinkers saw the world unfold like equations, artists painted light itself, and visionaries heard the hum of truth in every idea. But brilliance burns fast. The mind, flooded with unbearable awareness, collapses into a state known as Cognitive Eclipse. What began as enlightenment became a plague of overexposure  minds glowing too bright to last.
+
+Now, beneath the megawalls, the infected rest in Lumen Cells  chambers of soft light and silence. There, their fevered thoughts are harvested like data streams, fueling the sanctuaries’ sciences and philosophies. The living call them oracles, prophets, or martyrs of reason. But behind their radiant glass, each one burns away, thought by thought, until only the glow remains.">Lumen Syndrome</button>
+    <button class="pandemic-btn" data-img="ossyx.jfif" data-text="Ossyx Conversion
+	
+	
+	
+	Origin: Australia
+	Type: Amber Bio-Cryosuspension
+	Intention: Preserve life indefinitely 
+
+
+
+The final project of Australia’s cryonic initiative, Ossyx Conversion sought to grant immortality through preservation. By binding organic matter in a resin-like crystal, the process promised to hold life in perfect pause  unaging, unchanging, untouched by decay.
+
+When the rest of the world burned, Australia chose to sleep. Cut off by distance and dwindling resources, its leaders foresaw that survival would not come through struggle  but through stillness. Ossyx Conversion was not a failure; it was an act of mercy. The entire continent willingly embraced the amber crystallization, a mass preservation meant to hold life in perfect suspension until help arrived. Before the last transmission fell silent, they broadcast one message across the oceans: “Wait for us.”">Ossyx Conversion</button>
+    <button class="close-terminal">✕ CLOSE</button>
+
+ </div>
+
+  <!-- Slide Image + Terminal -->
+  <div class="pandemic-display">
+    <div class="pandemic-bg"></div>
+    <div class="pandemic-terminal"></div>
+  </div>
+
+</div> 
+
+
+ </div>
+ </div>
+ 
+ <div id="secureTransition">
+  <div class="secure-inner">
+    <div class="secure-scan"></div>
+    <div class="secure-text">
+      GLOBAL WALL COALITION<br>
+      <span>AUTHENTICATING ACCESS...</span>
+    </div>
+  </div>
+</div>
+
+<div id="official-window">
+
+  <div class="official-header">
+    <div class="official-left">
+      GLOBAL WALL COALITION — OVERGROWN ARCHIVES
+    </div>
+
+<div class="official-nav">
+  <a href="#" id="official-info">Information</a>
+  <a href="#" id="official-pandemic">Pandemics</a>
+</div>
+
+<div class="official-actions">
+
+  <button id="official-signin">
+    SIGN IN
+  </button>
+
+  <button id="official-close">
+    RETURN
+  </button>
+
+</div>
+
+  </div>
+
+  <div class="official-body">
+  
+	<div class="square"></div>
+	
+	<div class="square2"></div>
+
+  
+  
+    <img src="logo.png" class="official-logo">
+	
+<!-- OFFICIAL UI BUTTONS -->
+<nav class="official-menu">
+
+<a href="#Archive" class="img-btn" data-src="OverGrownLiveTerminal.html">
+  <img src="Button4.png">
+</a>
+
+<a href="#Archive" class="img-btn" data-src="OverGrownLiveTerminal.html">
+  <img src="Button2.png">
+</a>
+
+<a href="#Archive" class="img-btn" data-src="CardProfileScanner.html">
+  <img src="Button3.png">
+</a>
+
+<a href="#Archive" class="img-btn" data-src="OverGrownLiveTerminal.html">
+  <img src="Button1.png">
+</a>
+
+</nav>
+
+</div>
+
+
+
+  </div>
+
+</div>
+</div>
+
+<div id="iframe-window">
+  <div class="iframe-header">
+    <span id="iframe-title">MODULE</span>
+    <button id="iframe-close">✕</button>
+  </div>
+
+  <iframe id="iframe-content" src=""></iframe>
+</div>
+
+<!-- AUTH WINDOW -->
+
+<div id="auth-window">
+
+  <div class="auth-header">
+    <span>IDENTITY ACCESS TERMINAL</span>
+    <button id="auth-close">✕</button>
+  </div>
+
+  <div class="auth-body" id="auth-body">
+
+    <button id="signupBtn" class="authBtn">
+      SIGN UP
+    </button>
+
+    <button id="signinBtn" class="authBtn">
+      SIGN IN
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =========================
+     GLOBAL IDENTITY LAYER
+========================= -->
+
+<div id="identity-layer">
+
+
+
+  <!-- SIDE BUTTONS -->
+  <div id="rightButtons" style="display:none;">
+    <div class="sideBtn" onclick="togglePanel('cardPanel')">ID</div>
+    <div class="sideBtn" onclick="togglePanel('inventoryPanel')">INV</div>
+  </div>
+
+<!-- CARD PANEL -->
+<div id="cardPanel" class="identity-panel">
+
+  <button class="panelClose"
+  onclick="closePanels()">
+    ✕
+  </button>
+
+  <h3>ID CARD</h3>
+
+  <img id="cardImg">
+
+  <br><br>
+
+  <button onclick="logout()">LOGOUT</button>
+</div>
+
+<!-- INVENTORY PANEL -->
+<div id="inventoryPanel" class="identity-panel">
+
+  <button class="panelClose"
+  onclick="closePanels()">
+    ✕
+  </button>
+
+  <h3>INVENTORY</h3>
+
+  <div id="slots"></div>
+</div>
+
+
+<audio id="bgm1" src="Dread.mp3"></audio>
+<audio id="bgm2" src="Despair.m4a"></audio>
+<audio id="click-pandemic" src="pandemictabs.wav" preload="auto"></audio>
+<audio id="click-nav" src="nav.wav" preload="auto"></audio>
+
+
+<script>
+
+
+/* =========================
+   SECTION 1 WEIGHTED BACKGROUNDS
+========================= */
+
+const section1 = document.getElementById("section1");
+
+const backgrounds = [
+  { url: "OverGrown3.jpg", weight: 50 },
+  { url: "OverGrown2.jpg", weight: 30 },
+  { url: "OverGrown4.jpg", weight: 15 },
+  { url: "OverGrown1.jpg", weight: 5 } // rare event
+];
+
+let currentBackground = null;
+
+function getWeightedRandom() {
+  const totalWeight = backgrounds.reduce((sum, bg) => sum + bg.weight, 0);
+  let random = Math.random() * totalWeight;
+
+  for (let bg of backgrounds) {
+    if (random < bg.weight) {
+      return bg.url;
+    }
+    random -= bg.weight;
+  }
+}
+
+function changeSection1Background() {
+  let newImage;
+
+  // Prevent same image twice in a row
+  do {
+    newImage = getWeightedRandom();
+  } while (newImage === currentBackground);
+
+  section1.classList.add("fade-out");
+
+  setTimeout(() => {
+    section1.style.backgroundImage = `url('${newImage}')`;
+    section1.classList.remove("fade-out");
+    currentBackground = newImage;
+  }, 1500);
+}
+
+// Initial load
+changeSection1Background();
+
+// Change every 1 minute
+setInterval(changeSection1Background, 60000);
+
+
+
+
+/* =========================
+   PANDEMIC ENGINE
+========================= */
+
+const pandemicSection = document.querySelector(".pandemic-section");
+const pandemicButtons = document.querySelectorAll(".pandemic-btn");
+const pandemicBG = document.querySelector(".pandemic-bg");
+const pandemicTerminal = document.querySelector(".pandemic-terminal");
+const closeTerminal = document.querySelector(".close-terminal");
+
+/* Open panel when side tab clicked */
+document.getElementById("pandemic-tab").addEventListener("click", () => {
+  pandemicSection.classList.add("active");
+});
+
+/* Close panel */
+closeTerminal.addEventListener("click", () => {
+  pandemicSection.classList.remove("active");
+});
+
+/* Handle pandemic selection */
+const pandemicClick = document.getElementById("click-pandemic");
+
+pandemicButtons.forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    // 🔊 PLAY CLICK SOUND
+    pandemicClick.currentTime = 0;
+    pandemicClick.play();
+
+    const image = button.getAttribute("data-img");
+    const text = button.getAttribute("data-text");
+
+    pandemicBG.style.backgroundImage = `url('${image}')`;
+    pandemicBG.classList.add("active");
+
+    pandemicTerminal.innerHTML = text.replace(/\n/g, "<br>");
+  });
+
+});
+
+/* Nav sounds */
+
+const navClick = document.getElementById("click-nav");
+const officialButtons = document.querySelectorAll(".img-btn");
+
+officialButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    navClick.currentTime = 0;
+    navClick.play();
+  });
+});
+
+
+/* universal playsound */
+
+function playSound(audioEl) {
+  if (!audioEl) return;
+
+  audioEl.pause();
+  audioEl.currentTime = 0;
+
+  audioEl.play().catch(() => {});
+}
+
+
+
+  window.addEventListener('load', () => {
+    const screen = document.getElementById('loading-screen');
+    const visited = localStorage.getItem('visited');
+
+    if (!visited) {
+      screen.style.animation = 'firstBloom 5s forwards';
+      localStorage.setItem('visited', 'true');
+      setTimeout(() => {
+        screen.style.display = 'none';
+        document.body.classList.add('loaded');
+      }, 6000);
+    } else {
+      screen.style.animation = 'echoBloom 1.2s forwards';
+      setTimeout(() => {
+        screen.style.display = 'none';
+        document.body.classList.add('loaded');
+      }, 4200);
+    }
+  });
+  
+  // creator logic //
+  const creatorTrigger = document.getElementById("creator");
+  const creatorPanel = document.getElementById("creator-panel");
+  const creatorClose = document.getElementById("creator-close");
+
+  creatorTrigger.addEventListener("click", () => {
+  creatorPanel.classList.add("active");
+  });
+
+creatorClose.addEventListener("click", () => {
+  creatorPanel.classList.remove("active");
+});
+
+creatorPanel.addEventListener("click", (e) => {
+  if (e.target === creatorPanel) {
+    creatorPanel.classList.remove("active");
+  }
+});
+
+
+const landingLayer = document.getElementById("landing-layer");
+const advisoryLayer = document.getElementById("advisory-layer");
+const enterBtn = document.getElementById("enter-site");
+const countdownText = document.getElementById("countdown");
+
+// Lock scroll initially
+document.body.classList.add("no-scroll");
+
+enterBtn.addEventListener("click", () => {
+
+  // Hide landing
+  landingLayer.style.opacity = "0";
+  setTimeout(() => {
+    landingLayer.style.display = "none";
+  }, 600);
+
+  // Show advisory
+  advisoryLayer.classList.add("active");
+
+  let timeLeft = 10;
+  countdownText.textContent = `Clearance initializing... ${timeLeft}`;
+
+  const timer = setInterval(() => {
+    timeLeft--;
+    countdownText.textContent = `Clearance initializing... ${timeLeft}`;
+
+if (timeLeft <= 0) {
+  clearInterval(timer);
+
+  advisoryLayer.classList.add("glitch");
+
+  setTimeout(() => {
+    advisoryLayer.style.display = "none";
+
+    document.body.classList.remove("no-scroll");
+
+    // 🎧 START BGM SYSTEM HERE
+    startBGMSystem();
+
+  }, 1000);
+}
+
+  }, 1000);
+
+});
+
+document.getElementById("ui-toggle").addEventListener("click", () => {
+  document.body.classList.toggle("official-mode");
+});
+
+function switchUI() {
+  const overlay = document.getElementById("secureTransition");
+
+  overlay.classList.add("active");
+
+  setTimeout(() => {
+    document.body.classList.toggle("official-mode");
+  }, 800);
+
+  setTimeout(() => {
+    overlay.classList.remove("active");
+  }, 1700);
+}
+
+/* =========================
+   AUTO OFFICIAL WINDOW
+========================= */
+
+const officialWindow = document.getElementById("official-window");
+const officialClose = document.getElementById("official-close");
+
+const personalNav = document.querySelector(".official-nav");
+const sideTabs = document.querySelectorAll(".side-nav-tab");
+
+function fadePersonalUI() {
+  personalNav.classList.add("fade-ui");
+  sideTabs.forEach(tab => tab.classList.add("fade-ui"));
+}
+
+function restorePersonalUI() {
+  personalNav.classList.remove("fade-ui");
+  sideTabs.forEach(tab => tab.classList.remove("fade-ui"));
+}
+
+/* Trigger 5 seconds after advisory finishes */
+function triggerOfficialWindow() {
+  setTimeout(() => {
+    fadePersonalUI();
+    officialWindow.classList.add("active");
+  }, 5000);
+}
+
+/* Hook it into your advisory completion */
+const originalUnlock = document.body.classList.remove;
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const observer = new MutationObserver(() => {
+    if (!document.body.classList.contains("no-scroll")) {
+      triggerOfficialWindow();
+      observer.disconnect();
+    }
+  });
+
+  observer.observe(document.body, { attributes: true });
+});
+
+/* Close official window */
+officialClose.addEventListener("click", () => {
+  officialWindow.classList.remove("active");
+
+  setTimeout(() => {
+    restorePersonalUI();
+  }, 600);
+});
+  
+/* =========================
+   TERMINAL + OFFICIAL LINKS
+========================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  const infoTab = document.getElementById("info-tab");
+  const officialInfoBtn = document.getElementById("official-info");
+  const officialPandemicBtn = document.getElementById("official-pandemic");
+
+  const terminalPanel = document.getElementById("terminal-panel");
+  const terminalClose = document.getElementById("terminal-close");
+
+  // PERSONAL INFO BUTTON
+  if (infoTab && terminalPanel) {
+    infoTab.addEventListener("click", function () {
+      terminalPanel.classList.add("active");
+    });
+  }
+
+  // OFFICIAL INFO BUTTON
+  if (officialInfoBtn && terminalPanel) {
+    officialInfoBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      terminalPanel.classList.add("active");
+    });
+  }
+
+  // PANDEMIC BUTTON
+  if (officialPandemicBtn && pandemicSection) {
+    officialPandemicBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      pandemicSection.classList.add("active");
+    });
+  }
+
+  // CLOSE TERMINAL
+  if (terminalClose && terminalPanel) {
+    terminalClose.addEventListener("click", function () {
+      terminalPanel.classList.remove("active");
+    });
+  }
+
+});
+
+
+// SWITCH UI
+const logoSwitch = document.querySelector("#logo img");
+const overlay = document.getElementById("secureTransition");
+
+if (logoSwitch && officialWindow) {
+  logoSwitch.addEventListener("click", () => {
+
+    // Play secure transition
+    overlay.classList.add("active");
+
+    // After short delay, open official window
+    setTimeout(() => {
+      officialWindow.classList.add("active");
+    }, 800);
+
+    // Remove overlay after animation
+    setTimeout(() => {
+      overlay.classList.remove("active");
+    }, 1700);
+
+  });
+}
+
+// FRAMES WINDOWED
+
+const iframeWindow = document.getElementById("iframe-window");
+const iframe = document.getElementById("iframe-content");
+const iframeClose = document.getElementById("iframe-close");
+const buttons = document.querySelectorAll(".img-btn");
+
+// OPEN WINDOW
+buttons.forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const src = btn.getAttribute("data-src");
+
+    iframe.src = src;
+    iframeWindow.style.display = "flex";
+  });
+});
+
+// CLOSE WINDOW
+iframeClose.addEventListener("click", () => {
+  iframeWindow.style.display = "none";
+  iframe.src = "";
+});
+
+// DRAG WINDOWED FRAMES 
+
+const header = document.querySelector(".iframe-header");
+
+let isDragging = false;
+let offsetX, offsetY;
+
+header.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  offsetX = e.clientX - iframeWindow.offsetLeft;
+  offsetY = e.clientY - iframeWindow.offsetTop;
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (!isDragging) return;
+
+  iframeWindow.style.left = (e.clientX - offsetX) + "px";
+  iframeWindow.style.top = (e.clientY - offsetY) + "px";
+});
+
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+
+/* =========================
+   BGM SYSTEM
+========================= */
+
+const bgmTracks = [
+  document.getElementById("bgm1"),
+  document.getElementById("bgm2")
+];
+
+let currentBGM = null;
+let loopCount = 0;
+let bgmStarted = false;
+
+/* Pick random track */
+function getRandomBGM() {
+  let next;
+  do {
+    next = bgmTracks[Math.floor(Math.random() * bgmTracks.length)];
+  } while (next === currentBGM);
+  return next;
+}
+
+/* Play system */
+function playBGM() {
+  currentBGM = getRandomBGM();
+  loopCount = 0;
+
+  currentBGM.currentTime = 0;
+  currentBGM.play();
+
+  currentBGM.onended = () => {
+    loopCount++;
+
+    if (loopCount < 2) {
+      currentBGM.currentTime = 0;
+      currentBGM.play();
+    } else {
+      // Stop and schedule next
+      currentBGM.onended = null;
+
+      setTimeout(() => {
+        playBGM();
+      }, 30000); // 30 sec gap
+    }
+  };
+}
+
+/* Start AFTER advisory */
+function startBGMSystem() {
+  if (bgmStarted) return;
+  bgmStarted = true;
+
+    playBGM();
+}
+
+
+
+
+
+let uploadedImage = null;
+
+
+/* =========================
+   BIND SYSTEM
+========================= */
+
+function bind(){
+
+    const id = document.getElementById("idInput").value;
+
+    if(!id){
+        alert("ENTER ID");
+        return;
+    }
+
+    localStorage.setItem("profile", JSON.stringify({id}));
+    localStorage.setItem("card", uploadedImage);
+
+    enterIdentitySystem();
+}
+
+/* QUICK LOGIN */
+
+function quickLogin(){
+
+    const id = document.getElementById("idInput").value;
+
+    if(!id){
+        alert("ENTER ID");
+        return;
+    }
+
+    localStorage.setItem("profile", JSON.stringify({id}));
+
+    enterIdentitySystem();
+}
+
+
+
+
+/* LOAD CARD */
+
+function loadCard(){
+
+    const img = localStorage.getItem("card");
+
+    if(img){
+        document.getElementById("cardImg").src = img;
+    }
+}
+
+/* INVENTORY */
+
+function loadInventory(){
+
+    const container = document.getElementById("slots");
+
+    container.innerHTML = "";
+
+    for(let i=0;i<8;i++){
+
+        const slot = document.createElement("div");
+
+        slot.className = "slot";
+
+        if(i===0){
+
+            const img = localStorage.getItem("card");
+
+            if(img){
+
+                const item = document.createElement("img");
+
+                item.src = img;
+
+                item.className = "item";
+
+                makeDraggable(item);
+
+                slot.appendChild(item);
+            }
+        }
+
+        container.appendChild(slot);
+    }
+}
+
+/* DRAGGING */
+
+function makeDraggable(el){
+
+    el.onmousedown = function(e){
+
+        const clone = el.cloneNode(true);
+
+        clone.style.position = "fixed";
+        clone.style.pointerEvents = "none";
+        clone.style.width = "100px";
+        clone.style.zIndex = "1000000";
+
+        document.body.appendChild(clone);
+
+        move(e);
+
+        function move(e){
+            clone.style.left = e.clientX + "px";
+            clone.style.top = e.clientY + "px";
+        }
+
+        document.onmousemove = move;
+
+        document.onmouseup = function(){
+
+            clone.remove();
+
+            document.onmousemove = null;
+            document.onmouseup = null;
+        };
+    };
+}
+
+
+/* PANEL TOGGLE */
+
+function togglePanel(id){
+
+    const target =
+    document.getElementById(id);
+
+    const panels =
+    document.querySelectorAll(".identity-panel");
+
+    // close all other panels first
+    panels.forEach(panel => {
+
+        if(panel.id !== id){
+            panel.classList.remove("open");
+        }
+
+    });
+
+    // toggle selected
+    target.classList.toggle("open");
+}
+
+/* CLOSE ALL */
+
+function closePanels(){
+
+    document
+    .querySelectorAll(".identity-panel")
+    .forEach(panel => {
+
+        panel.classList.remove("open");
+
+    });
+}
+
+/* OUTSIDE CLICK CLOSE */
+
+document.addEventListener("click", (e) => {
+
+    const clickedPanel =
+    e.target.closest(".identity-panel");
+
+    const clickedButton =
+    e.target.closest(".sideBtn");
+
+    // if NOT clicking panel
+    // and NOT clicking side buttons
+    if(!clickedPanel && !clickedButton){
+
+        closePanels();
+    }
+
+});
+
+
+/* LOGOUT */
+
+function logout(){
+
+    localStorage.removeItem("profile");
+    localStorage.removeItem("card");
+
+    location.reload();
+}
+
+/* AUTO LOGIN */
+
+window.addEventListener("load", ()=>{
+
+    if(localStorage.getItem("profile")){
+        enterIdentitySystem();
+    }
+});
+
+const authWindow = document.getElementById("auth-window");
+const authBody = document.getElementById("auth-body");
+
+document.getElementById("official-signin")
+.addEventListener("click", ()=>{
+
+    authWindow.style.display = "flex";
+});
+
+document.getElementById("auth-close")
+.addEventListener("click", () => {
+
+    authWindow.style.display = "none";
+    resetAuthBody(); // 👈 key fix
+
+});
+
+document.getElementById("signinBtn")
+.addEventListener("click", ()=>{
+
+authBody.innerHTML = `
+
+<h3 style="color:cyan;">
+IDENTITY SCANNER
+</h3>
+
+<input type="file" id="upload">
+
+<input type="text"
+id="idInput"
+placeholder="GWC-XXXXXX">
+
+<button onclick="bind()"
+class="authBtn">
+BIND
+</button>
+
+<button onclick="quickLogin()"
+class="authBtn">
+LOGIN
+</button>
+
+`;
+
+/* NOW the upload element exists */
+document.getElementById("upload")
+.addEventListener("change", e=>{
+
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = evt => {
+        uploadedImage = evt.target.result;
+    };
+
+    reader.readAsDataURL(file);
+});
+
+});
+
+document.getElementById("signupBtn")
+.addEventListener("click", ()=>{
+
+    iframe.src = "Registration .html";
+    iframeWindow.style.display = "flex";
+
+});
+function enterIdentitySystem(){
+
+    document.getElementById("identity-layer")
+    .style.display = "block";
+
+    authWindow.style.display = "none";
+
+    document.getElementById("rightButtons")
+    .style.display = "flex";
+
+    loadCard();
+    loadInventory();
+}
+
+function resetAuthBody() {
+  authBody.innerHTML = `
+    <button id="signupBtn" class="authBtn">
+      SIGN UP
+    </button>
+
+    <button id="signinBtn" class="authBtn">
+      SIGN IN
+    </button>
+  `;
+
+  attachAuthEvents(); // rebind listeners after reset
+}
+
+function attachAuthEvents() {
+
+document.getElementById("signupBtn")
+.addEventListener("click", ()=>{
+
+    iframe.src = "Registration .html";
+    iframeWindow.style.display = "flex";
+
+});
+
+  document.getElementById("signinBtn")
+  .addEventListener("click", () => {
+
+      authBody.innerHTML = `
+        <h3 style="color:cyan;">IDENTITY SCANNER</h3>
+
+        <input type="file" id="upload">
+
+        <input type="text"
+        id="idInput"
+        placeholder="GWC-XXXXXX">
+
+        <button onclick="bind()" class="authBtn">BIND</button>
+
+        <button onclick="quickLogin()" class="authBtn">LOGIN</button>
+      `;
+  });
+}
+
+</script>
+
+</Body>
+</html>

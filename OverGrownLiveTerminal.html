@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OverGrown — Memory Terminal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin:0;
+    color:#cfe7d3;
+	background-image: url("archivebg.png");
+    background: radial-gradient(circle at center, #07120d, #020504);
+    font-family: Consolas, monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::after {
+    content:"";
+    position:fixed;
+    inset:0;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 2px, transparent 4px);
+    pointer-events:none;
+    z-index: 9999;
+  }
+
+  /* Main header (viewer only) */
+  #viewerHeader {
+    height: 40px;
+    border-bottom: 2px solid #4caf75;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    background: linear-gradient(to right, rgba(80,255,190,.12), rgba(5,10,8,.85));
+    backdrop-filter: blur(5px);
+    color: #d9ffee;
+    font-size: 15px;
+    letter-spacing: 2px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* Archive header */
+  #archiveHeader {
+    height: 25px;
+    border-bottom: 2px solid #4caf75;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    background: linear-gradient(to right, rgba(80,255,190,.12), rgba(5,10,8,.85));
+    backdrop-filter: blur(5px);
+    color: #d9ffee;
+    font-size: 15px;
+    letter-spacing: 2px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  button.exit-index {
+    background: rgba(180,40,40,0.7);
+    border-color: #ff6666;
+    color: #ffdddd;
+  }
+
+  button.exit-index:hover {
+    background: rgba(200,60,60,0.9);
+  }
+
+  /* ── Viewer ─────────────────────────────────────────────── */
+  #viewer-view {
+    padding: 20px;
+	background-image: url("archivebg.png");
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+
+  }
+
+  #shell {
+    width: 92vw;
+    max-width: 1100px;
+    height: calc(100vh - 110px);
+    margin: 20px auto;
+    border: 2px solid #3cff9c;
+    box-shadow: 0 0 48px rgba(60,255,156,.18);
+    padding: 16px;
+    background: rgba(4,12,9,.96);
+    display: flex;
+    flex-direction: column;
+  }
+
+  #header {
+    font-size: 13px;
+    opacity: .8;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  #content {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #2c8f66;
+    padding: 16px;
+    background: rgba(10,25,18,.55);
+  }
+
+  #codeInputWrap {
+    padding: 14px;
+    border-top: 1px solid #2c8f66;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  #codeInput {
+    width: 60%;
+    max-width: 500px;
+    padding: 10px 14px;
+    background: #000;
+    border: 1px solid #3cff9c;
+    color: #aaffd8;
+    font-family: inherit;
+    font-size: 15px;
+    text-align: center;
+  }
+
+  button {
+    background: #000;
+    border: 1px solid #3cff9c;
+    color: #aaffd8;
+    padding: 9px 18px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: rgba(60,255,156,0.18);
+  }
+
+  .glitch { animation: glitch 1.3s infinite; }
+  @keyframes glitch {
+    0% { text-shadow: 2px 0 #f00, -2px 0 #0ff; }
+    50% { text-shadow: -1px 0 #f0f, 1px 0 #0f0; }
+    100% { text-shadow: 2px 0 #f00, -2px 0 #0ff; }
+  }
+
+  .redacted { background:#000; color:#000; padding:0 5px; }
+
+  img {
+    max-width: 100%;
+    border: 1px solid #3cff9c;
+    background: #000;
+    margin: 12px 0;
+  }
+
+  /* Split layout only in viewer for images */
+  .image-view-container {
+    display: flex;
+    gap: 20px;
+    min-height: 400px;
+  }
+
+  .image-left {
+    flex: 0 0 45%;
+    max-width: 45%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #4caf75;
+    padding: 10px;
+  }
+
+  .image-left img {
+    max-width: 100%;
+    max-height: 60vh;
+    object-fit: contain;
+  }
+
+  .desc-right {
+    flex: 1;
+    border: 1px solid #2f4437;
+    padding: 14px;
+    background: rgba(10,20,15,0.6);
+    overflow-y: auto;
+    max-height: 70vh;
+  }
+
+  /* ── Archive ────────────────────────────────────────────── */
+  #archive-view {
+    display: none;
+    padding: 20px;
+  }
+
+  #archive-app {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  #sidebar {
+    border: 2px solid #2f4437;
+    padding: 14px;
+    background: rgba(5,10,8,0.88);
+  }
+
+  #vialRack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+    max-height: 78vh;
+    overflow-y: auto;
+  }
+
+  .vial {
+    position: relative;
+    height: 48px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.03);
+    border: 2px solid rgba(200,255,220,0.35);
+    overflow: hidden;
+  }
+
+  .vial::after {
+    content:"";
+    position: absolute;
+    inset:0;
+    background: linear-gradient(to right, rgba(255,255,255,.12), rgba(255,255,255,.04) 60%);
+  }
+
+  .liquid {
+    position: absolute;
+    left:0; top:0; height:100%;
+    width:0%;
+    background: linear-gradient(to right, rgba(60,180,120,.9), rgba(120,240,180,.65));
+    transition: width .5s ease;
+  }
+
+  .label  { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none; }
+  .percent { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:13px; color:#c9ffe4; pointer-events:none; }
+
+#canvas {
+  border: 2px solid #2f4437;
+  padding: 16px;
+  background: rgba(5,10,8,0.9);
+  min-height: 70vh;
+  height: 80vh;              /* fixed height so it doesn't stretch */
+  overflow: hidden;          /* prevent outer overflow */
+}
+
+#canvasInner {
+  border: 2px solid #4caf75;
+  padding: 16px;
+  height: 100%;              /* fill the parent */
+  max-height: 100%;
+  overflow-y: auto;          /* ← this is the key: now it scrolls internally */
+  color: #8fd9b2;
+  scrollbar-width: thin;
+  scrollbar-color: #4caf75 rgba(5,10,8,0.6);
+}
+
+#canvasInner img {
+  max-width: 100%;
+  max-height: 60vh;          /* keeps very tall images from forcing huge scroll */
+  object-fit: contain;
+  display: block;
+  margin: 12px auto;
+}
+
+/* Webkit scrollbar styling (matches your universal theme) */
+#canvasInner::-webkit-scrollbar {
+  width: 6px;
+}
+#canvasInner::-webkit-scrollbar-track {
+  background: rgba(5,10,8,0.6);
+}
+#canvasInner::-webkit-scrollbar-thumb {
+  background: #4caf75;
+  border-radius: 3px;
+}
+#canvasInner::-webkit-scrollbar-thumb:hover {
+  background: #6ed89a;
+}
+  .entry-list-item {
+    border:1px solid #4caf75;
+    padding:9px 12px;
+    margin:9px 0;
+    background:rgba(20,40,30,.35);
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+
+  .sector-item {
+    padding: 8px 12px;
+    margin: 6px 0;
+    background: rgba(20,40,30,.4);
+    border: 1px solid #2c8f66;
+    cursor: pointer;
+  }
+
+  .sector-item:hover {
+    background: rgba(40,70,50,.5);
+  }
+
+  .code-line {
+    margin: 6px 0;
+    color: #3cff9c;
+  }
+
+  .confirmOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,10,8,0.85);
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 9999;
+  }
+
+  .confirmBox {
+    border: 2px solid #4caf75;
+    background: rgba(5,10,8,0.97);
+    padding: 24px;
+    min-width: 320px;
+    text-align: center;
+  }
+
+  .confirmButtons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  @keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ── Universal Scrollbar Theme ────────────────────────────────────── */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4caf75 rgba(5,10,8,0.6);
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px; /* for horizontal scrollbars too */
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(5,10,8,0.6);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #4caf75;
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #6ed89a;
+}
+
+/* Optional: make it look even nicer in modals / editors */
+.confirmOverlay *::-webkit-scrollbar,
+#canvasInner::-webkit-scrollbar,
+#content::-webkit-scrollbar,
+.desc-right::-webkit-scrollbar,
+#vialRack::-webkit-scrollbar,
+#vialRackArchive::-webkit-scrollbar {
+  width: 6px;
+}
+
+.confirmOverlay *::-webkit-scrollbar-thumb,
+#canvasInner::-webkit-scrollbar-thumb,
+#content::-webkit-scrollbar-thumb,
+.desc-right::-webkit-scrollbar-thumb,
+#vialRack::-webkit-scrollbar-thumb,
+#vialRackArchive::-webkit-scrollbar-thumb {
+  background: #4caf75;
+}
+
+.confirmOverlay *::-webkit-scrollbar-thumb:hover,
+#canvasInner::-webkit-scrollbar-thumb:hover,
+#content::-webkit-scrollbar-thumb:hover,
+.desc-right::-webkit-scrollbar-thumb:hover,
+#vialRack::-webkit-scrollbar-thumb:hover,
+#vialRackArchive::-webkit-scrollbar-thumb:hover {
+  background: #6ed89a;
+}
+
+
+#sidebar {
+  border: 2px solid #2f4437;
+  padding: 0;                       /* remove padding so title hugs edge */
+  background: rgba(5,10,8,0.88);
+  display: flex;
+  flex-direction: column;
+  height: 80vh;                     /* or calc(100vh - 120px) — adjust as needed */
+  max-height: 80vh;
+  overflow: hidden;                 /* important: no overflow outside sidebar */
+  position: relative;
+}
+
+.sidebar-title {
+  font-size: 17px;
+  letter-spacing: 1px;
+  padding: 14px 14px 10px;
+  background: linear-gradient(to bottom, rgba(80,255,190,0.08), transparent);
+  border-bottom: 1px solid #2f4437;
+  color: #d9ffee;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  backdrop-filter: blur(4px);
+}
+
+/* The scrollable vial list */
+#vialRack {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #4caf75 rgba(5,10,8,0.6);
+}
+
+/* Fade effect at top & bottom using gradients (modern & clean) */
+#vialRack {
+  position: relative;
+}
+
+#vialRack::before,
+#vialRack::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 40px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+#vialRack::before {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(5,10,8,0.95) 0%, transparent 100%);
+}
+
+#vialRack::after {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(5,10,8,0.95) 0%, transparent 100%);
+}
+
+/* Scrollbar styling (already universal, but make sure it applies here too) */
+#vialRack::-webkit-scrollbar {
+  width: 6px;
+}
+#vialRack::-webkit-scrollbar-track {
+  background: rgba(5,10,8,0.6);
+}
+#vialRack::-webkit-scrollbar-thumb {
+  background: #4caf75;
+  border-radius: 3px;
+}
+#vialRack::-webkit-scrollbar-thumb:hover {
+  background: #6ed89a;
+}
+
+
+</style>
+</head>
+<body>
+
+<!-- Viewer Header -->
+<div id="viewerHeader">
+  <div>OVERGROWN — MEMORY DEVICE</div>
+  <div>STATUS: ACTIVE</div>
+</div>
+
+<!-- Viewer (landing) -->
+<div id="viewer-view">
+
+  <div id="shell">
+    <div id="header">
+      OVERGROWN LIVE TERMINAL — HANDHELD MEMORY DEVICE<br>
+      STATUS: ACTIVE | CLEARANCE: UNKNOWN
+    </div>
+
+    <div id="content">
+      <div id="artifactWindow">
+        <div id="artifactHeader">AWAITING ARTIFACT CODE…</div>
+        <div id="artifactBody"></div>
+      </div>
+    </div>
+
+    <div id="codeInputWrap">
+      <button class="exit-index" onclick="window.location.href = '/index.html';">EXIT</button>
+      <input id="codeInput" placeholder="PASTE OR TYPE ARTIFACT CODE" autocomplete="off" />
+      <button id="decodeBtn">DECODE</button>
+      <button id="refreshBtn">REFRESH</button>
+    </div>
+
+    <div id="unlockedSectors" style="margin-top:16px; font-size:13px; opacity:0.9;"></div>
+  </div>
+
+</div>
+
+<!-- Archive -->
+<div id="archive-view">
+
+  <!-- Archive Header -->
+  <div id="archiveHeader">
+    <div>OVERGROWN — LIVE ARCHIVE TERMINAL</div>
+    <div>
+      <button onclick="showViewer()" style="padding:6px 14px; font-size:13px;">Back to Viewer</button>
+      STATUS: ACTIVE
+    </div>
+  </div>
+
+  <div id="archive-app">
+    <div id="sidebar">
+      <div style="font-size:17px; letter-spacing:1px; margin-bottom:14px;">VIAL RACK</div>
+      <div id="vialRack"></div>
+    </div>
+
+    <div id="canvas">
+      <div id="canvasInner">Select a vial to begin</div>
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  SHARED
+// ─────────────────────────────────────────────────────────────
+
+const containers = [
+  "FloraUltima","CrimsonPlague","TheMesh","PrimalWail",
+  "ApexStrain","LumenSyndrome","OssyxConversion",
+  "World Building","Main Narrative","Elisha Documentaries","Battle Maidens","Confirmed Lore"
+];
+
+const vialCodes = {
+  "FloraUltima": "fu", "CrimsonPlague": "cv", "TheMesh": "tm", "PrimalWail": "pw",
+  "ApexStrain": "as", "LumenSyndrome": "ls", "OssyxConversion": "oc",
+  "World Building": "wb", "Main Narrative": "mn", "Elisha Documentaries": "ed", "Battle Maidens": "bm", "Confirmed Lore": "cl"
+};
+
+let activeVial = "";
+const ARCHIVE_PASSWORD = "access archive";
+
+// ─────────────────────────────────────────────────────────────
+//  SWITCH
+// ─────────────────────────────────────────────────────────────
+
+function showArchive() {
+  document.getElementById('viewer-view').style.display = 'none';
+  document.getElementById('archive-view').style.display = 'block';
+  buildArchiveVialRack();
+}
+
+function showViewer() {
+  document.getElementById('archive-view').style.display = 'none';
+  document.getElementById('viewer-view').style.display = 'block';
+  buildUnlockedSectors();
+}
+
+
+// Get or initialize ordered container list
+function getContainerOrder() {
+  let order = JSON.parse(localStorage.getItem("og_container_order") || "[]");
+  if (order.length === 0) {
+    order = [...containers]; // initial hardcoded list
+    localStorage.setItem("og_container_order", JSON.stringify(order));
+  }
+  return order;
+}
+
+// In buildArchiveVialRack() — use getContainerOrder() instead of containers
+function buildArchiveVialRack() {
+  const rack = document.getElementById('vialRack');
+  rack.innerHTML = '';
+  const order = getContainerOrder();
+  order.forEach(c => {
+    // ... same as before
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  VIEWER
+// ─────────────────────────────────────────────────────────────
+
+function findEntryByCode(code) {
+  for (const vial of containers) {
+    const data = JSON.parse(localStorage.getItem("og_" + vial) || "{}");
+    for (const id in data) {
+      if (data[id].loreCode === code) return { ...data[id], vial };
+    }
+  }
+  return null;
+}
+
+function glitchText(text) {
+  return (text || "").replace(/\[REDACTED\]/gi, '<span class="redacted">██████</span>');
+}
+
+function loadViewerCode(manualCode = null) {
+  const input = document.getElementById('codeInput');
+  const code = manualCode || (input.value || "").trim();
+  if (!code) return;
+
+  if (code.toLowerCase() === ARCHIVE_PASSWORD) {
+    if (!manualCode) input.value = "";
+    showArchive();
+    return;
+  }
+
+  let viewed = JSON.parse(localStorage.getItem("og_viewed_codes") || "[]");
+  const entry = findEntryByCode(code);
+  const header = document.getElementById('artifactHeader');
+  const body = document.getElementById('artifactBody');
+
+  body.innerHTML = '';
+
+  if (!entry) {
+    // ── GHOST CODE DETECTED ──
+    header.textContent = "ACCESS DENIED";
+    body.innerHTML = `<span class="glitch">ARTIFACT NOT FOUND OR SEALED</span>`;
+
+    // Auto-remove from viewed list after 3 seconds
+    setTimeout(() => {
+      viewed = viewed.filter(c => c !== code);
+      localStorage.setItem("og_viewed_codes", JSON.stringify(viewed));
+      buildUnlockedSectors();           // Refresh the list → ghost disappears
+      // Optional: visual feedback in body
+      body.innerHTML += `<div style="margin-top:12px; color:#ff9999; font-size:13px;">(Entry removed from memory)</div>`;
+    }, 3000);
+
+    return;
+  }
+
+  // Valid entry → show it normally
+  header.textContent = `RECOVERED ENTRY — ${entry.loreCode}`;
+
+  const meta = document.createElement('div');
+  meta.style.cssText = "opacity:0.65; font-size:13px; margin-bottom:14px; line-height:1.4;";
+  meta.innerHTML = `Artifact ID: ${entry.id}<br>Timestamp: ${entry.time}<br>Integrity: STABLE`;
+  body.appendChild(meta);
+
+  if (entry.type === 'text') {
+    const div = document.createElement('div');
+    div.innerHTML = glitchText(entry.content);
+    body.appendChild(div);
+  } else {
+    const container = document.createElement('div');
+    container.className = 'image-view-container';
+    const left = document.createElement('div');
+    left.className = 'image-left';
+    const img = document.createElement('img');
+    img.src = entry.img;
+    left.appendChild(img);
+    const right = document.createElement('div');
+    right.className = 'desc-right';
+    right.innerHTML = entry.desc ? glitchText(entry.desc) : '<em style="opacity:0.6;">No description available.</em>';
+    container.append(left, right);
+    body.appendChild(container);
+  }
+
+  // Add to viewed list if new
+  if (!viewed.includes(code)) {
+    viewed.push(code);
+    localStorage.setItem("og_viewed_codes", JSON.stringify(viewed));
+    buildUnlockedSectors();
+  }
+
+  if (!manualCode) input.value = "";
+}
+function refreshViewer() {
+  document.getElementById('codeInput').value = "";
+  document.getElementById('artifactHeader').textContent = "AWAITING ARTIFACT CODE…";
+  document.getElementById('artifactBody').innerHTML = "";
+}
+
+document.getElementById('decodeBtn').onclick = () => loadViewerCode();
+document.getElementById('refreshBtn').onclick = refreshViewer;
+document.getElementById('codeInput').onkeydown = e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    loadViewerCode();
+  }
+};
+
+function buildUnlockedSectors() {
+  const container = document.getElementById('unlockedSectors');
+  if (!container) return;
+
+  const viewed = JSON.parse(localStorage.getItem("og_viewed_codes") || "[]");
+  if (viewed.length === 0) {
+    container.innerHTML = '<div style="opacity:0.6; margin-top:8px;">No artifacts recovered yet.</div>';
+    return;
+  }
+
+  // ── Group viewed codes by prefix ──
+  const sectorMap = {};
+
+  viewed.forEach(code => {
+    // Try to match known vial code prefixes
+    let matchedName = null;
+    for (const [name, short] of Object.entries(vialCodes)) {
+      if (code.startsWith("oglt" + short)) {
+        matchedName = name;
+        break;
+      }
+    }
+    // Fallback: show raw prefix if unknown
+    if (!matchedName) {
+      const prefix = code.match(/^oglt([a-z]{2})/)?.[1] || "??";
+      matchedName = `Unknown (${prefix})`;
+    }
+
+    if (!sectorMap[matchedName]) {
+      sectorMap[matchedName] = [];
+    }
+    sectorMap[matchedName].push(code);
+  });
+
+  // ── Render ──
+  container.innerHTML = '<div style="margin-bottom:10px; font-weight:bold;">UNLOCKED SECTORS</div>';
+
+  // Sort by name for nicer display
+  Object.keys(sectorMap)
+    .sort()
+    .forEach(name => {
+      const codes = sectorMap[name];
+      const count = codes.length;
+
+      const sectorDiv = document.createElement('div');
+      sectorDiv.className = 'sector-item';
+      sectorDiv.innerHTML = `<strong>${name}</strong> — ${count} artifact${count === 1 ? '' : 's'}`;
+
+      sectorDiv.onclick = () => {
+        const artifactBody = document.getElementById('artifactBody');
+        artifactBody.innerHTML = `<div style="margin:10px 0; color:#8fffd3;">Codes recovered in ${name}:</div>`;
+
+        codes.forEach(code => {
+          const line = document.createElement('div');
+          line.className = 'code-line';
+          line.innerHTML = `> ${code} <button onclick="loadViewerCode('${code}')">REPLAY</button>`;
+          artifactBody.appendChild(line);
+        });
+
+        document.getElementById('artifactHeader').textContent = `SECTOR: ${name}`;
+      };
+
+      container.appendChild(sectorDiv);
+    });
+}
+// ─────────────────────────────────────────────────────────────
+//  ARCHIVE
+// ─────────────────────────────────────────────────────────────
+
+function getVialData(name) { return JSON.parse(localStorage.getItem("og_" + name) || "{}"); }
+function saveVialData(name, data) { localStorage.setItem("og_" + name, JSON.stringify(data)); }
+
+function updateVialFill(name) {
+  const d = getVialData(name);
+  let total = 0;
+  Object.values(d).forEach(e => {
+    if (e.type === 'text') total += ((e.content || '').replace(/<[^>]*>/g,'').trim().split(/\s+/).filter(Boolean).length) / 200;
+    if (e.type === 'image') {
+      total += 1;
+      if ((e.desc || '').trim()) total += 1;
+    }
+  });
+  total = Math.min(total, 100);
+  const v = document.querySelector(`.vial[data-c="${name}"]`);
+  if (v) {
+    v.querySelector('.liquid').style.width = total.toFixed(1)+'%';
+    v.querySelector('.percent').textContent = total.toFixed(1)+'%';
+  }
+}
+
+function buildArchiveVialRack() {
+  const rack = document.getElementById('vialRack');
+  rack.innerHTML = '';
+  containers.forEach(c => {
+    const v = document.createElement('div');
+    v.className = 'vial';
+    v.dataset.c = c;
+    v.innerHTML = `<div class="liquid"></div><div class="label">${c}</div><div class="percent">0%</div>`;
+    v.onclick = () => openVial(c);
+    rack.appendChild(v);
+    updateVialFill(c);
+  });
+}
+
+function generateLoreCode(type) {
+  const vc = vialCodes[activeVial] || "xx";
+  const tc = type === "text" ? "txt" : "img";
+  const idx = Object.keys(getVialData(activeVial)).length + 1;
+  return `oglt${vc}${tc}${idx}`;
+}
+
+function openVial(c) {
+  activeVial = c;
+  const canvas = document.getElementById('canvasInner');
+  canvas.innerHTML = '';
+
+  const btns = document.createElement('div');
+  btns.style.marginBottom = '16px';
+  btns.innerHTML = `
+    <button onclick="openEditor('text')">Add Text</button>
+    <button onclick="openEditor('image')">Add Image</button>
+  `;
+  canvas.appendChild(btns);
+
+  const data = getVialData(c);
+  const entries = Object.values(data).sort((a,b)=>new Date(b.time)-new Date(a.time));
+
+  if (!entries.length) {
+    canvas.innerHTML += `<div style="opacity:0.7;">No entries yet in ${c}</div>`;
+    return;
+  }
+
+  entries.forEach(e => {
+    const item = document.createElement('div');
+    item.className = 'entry-list-item';
+    item.innerHTML = `
+      <div><strong>${e.id}</strong> — ${e.name||'(unnamed)'}<br><small>${e.time}</small></div>
+      <div style="display:flex; gap:12px;">
+        <span style="color:#8fffd3;cursor:pointer;" onclick="event.stopPropagation(); navigator.clipboard.writeText('${e.loreCode}'); alert('Code copied')">📋</span>
+        <span style="color:#ff9999;cursor:pointer;" onclick="event.stopPropagation(); confirmDelete('${e.id}')">✖</span>
+      </div>
+    `;
+    item.onclick = () => viewEntry(e);
+    canvas.appendChild(item);
+  });
+}
+
+function confirmDelete(entryId) {
+  const ov = document.querySelector('.confirmOverlay');
+  if (ov) ov.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'confirmOverlay';
+
+  const box = document.createElement('div');
+  box.className = 'confirmBox';
+  box.innerHTML = `
+    <div style="font-size:16px; margin-bottom:12px;">Delete Entry?</div>
+    <div style="opacity:0.8; margin-bottom:20px;">This action cannot be undone.</div>
+  `;
+
+  const btns = document.createElement('div');
+  btns.className = 'confirmButtons';
+
+  const yes = document.createElement('button');
+  yes.textContent = 'Delete';
+  yes.style.borderColor = '#ff5555';
+  yes.style.color = '#ffaaaa';
+  yes.onclick = () => {
+    const d = getVialData(activeVial);
+    delete d[entryId];
+    saveVialData(activeVial, d);
+    updateVialFill(activeVial);
+    overlay.remove();
+    openVial(activeVial);
+  };
+
+  const no = document.createElement('button');
+  no.textContent = 'Cancel';
+  no.onclick = () => overlay.remove();
+
+  btns.append(yes, no);
+  box.appendChild(btns);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+function openEditor(type) {
+  const canvas = document.getElementById('canvasInner');
+  canvas.innerHTML = '';
+
+  const back = document.createElement('button');
+  back.textContent = '← Back';
+  back.onclick = () => openVial(activeVial);
+  canvas.appendChild(back);
+
+  const layer = document.createElement('div');
+  layer.style.marginTop = '16px';
+  layer.innerHTML = `
+    <input id="eId" placeholder="Artifact ID (required)" style="display:block;width:98%;margin:10px 0;padding:9px;">
+    <input id="eName" placeholder="Entry Name" style="display:block;width:98%;margin:10px 0;padding:9px;">
+  `;
+
+  if (type === 'text') {
+    // Your existing text editor (already improved)
+    const ed = document.createElement('div');
+    ed.contentEditable = true;
+    ed.id = 'eContent';
+    ed.style.cssText = `
+      border:1px solid #4caf75;
+      min-height: 240px;
+      max-height: 380px;
+      padding:12px;
+      background:rgba(0,0,0,0.5);
+      margin:12px 0;
+      overflow-y: auto;
+      resize: vertical;
+    `;
+
+    ed.innerHTML = '<p style="color:#6a9f80; opacity:0.7; pointer-events:none; user-select:none;">Start typing your entry here...</p>';
+
+    ed.addEventListener('focus', () => {
+      if (ed.innerHTML.includes('Start typing your entry here...')) {
+        ed.innerHTML = '';
+      }
+    }, { once: true });
+
+    ed.addEventListener('input', () => {
+      if (ed.innerText.trim() === '') {
+        ed.innerHTML = '<p style="color:#6a9f80; opacity:0.7; pointer-events:none; user-select:none;">Start typing your entry here...</p>';
+      }
+    });
+
+    const sv = document.createElement('button');
+    sv.textContent = 'Save Text';
+    sv.style.marginTop = '12px';
+    sv.onclick = saveText;
+
+    layer.append(ed, sv);
+  } else {
+    // ── IMAGE EDITOR ── now with improved description field
+    const drop = document.createElement('div');
+    drop.textContent = 'Click to upload image';
+    drop.style.cssText = 'border:2px dashed #4caf75; height:110px; display:flex; align-items:center; justify-content:center; margin:12px 0; cursor:pointer;';
+    let imgData = '';
+
+    drop.onclick = () => {
+      const i = document.createElement('input');
+      i.type = 'file'; i.accept = 'image/*';
+      i.onchange = e => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = ev => { imgData = ev.target.result; drop.textContent = 'Image loaded'; };
+        r.readAsDataURL(f);
+      };
+      i.click();
+    };
+
+    // ── Improved description field (same behavior as text editor) ──
+    const desc = document.createElement('div');
+    desc.contentEditable = true;
+    desc.id = 'eDesc';
+    desc.style.cssText = `
+      border:1px solid #4caf75;
+      min-height: 160px;           /* taller starting area */
+      max-height: 240px;           /* prevent infinite growth */
+      padding:12px;
+      background:rgba(0,0,0,0.5);
+      margin:12px 0;
+      overflow-y: auto;            /* ← scrollbar when needed */
+      resize: vertical;            /* optional manual resize */
+    `;
+
+    // Ghost placeholder
+    desc.innerHTML = '<p style="color:#6a9f80; opacity:0.7; pointer-events:none; user-select:none;">Description</p>';
+
+    // Clear on first focus
+    desc.addEventListener('focus', () => {
+      if (desc.innerHTML.includes('Describe the image here...')) {
+        desc.innerHTML = '';
+      }
+    }, { once: true });
+
+    // Re-add if user empties it
+    desc.addEventListener('input', () => {
+      if (desc.innerText.trim() === '') {
+        desc.innerHTML = '<p style="color:#6a9f80; opacity:0.7; pointer-events:none; user-select:none;">Describe the image here (optional)...</p>';
+      }
+    });
+
+    const sv = document.createElement('button');
+    sv.textContent = 'Save Image';
+    sv.style.marginTop = '12px';
+    sv.onclick = () => saveImage(imgData);
+
+    layer.append(drop, desc, sv);
+  }
+
+  canvas.appendChild(layer);
+}function saveText() {
+  const id = document.getElementById('eId')?.value.trim();
+  const name = document.getElementById('eName')?.value.trim();
+  const content = document.getElementById('eContent')?.innerHTML.trim();
+  if (!id || !name || !content) return alert("Missing required fields");
+  const d = getVialData(activeVial);
+  const code = generateLoreCode('text');
+  d[id] = {id, name, type:'text', content, time:new Date().toLocaleString(), loreCode:code};
+  saveVialData(activeVial, d);
+  updateVialFill(activeVial);
+  openVial(activeVial);
+}
+
+function saveImage(imgData) {
+  const id = document.getElementById('eId')?.value.trim();
+  const name = document.getElementById('eName')?.value.trim();
+  const desc = document.getElementById('eDesc')?.innerHTML.trim();
+  if (!id || !name || !imgData) return alert("Missing required fields / image");
+  const d = getVialData(activeVial);
+  const code = generateLoreCode('image');
+  d[id] = {id, name, type:'image', img:imgData, desc, time:new Date().toLocaleString(), loreCode:code};
+  saveVialData(activeVial, d);
+  updateVialFill(activeVial);
+  openVial(activeVial);
+}
+
+function viewEntry(e) {
+  const canvas = document.getElementById('canvasInner');
+  canvas.innerHTML = '';
+
+  const back = document.createElement('button');
+  back.textContent = '← Back';
+  back.onclick = () => openVial(activeVial);
+  canvas.appendChild(back);
+
+  const meta = document.createElement('div');
+  meta.style.cssText = "opacity:0.7; font-size:13px; line-height:1.4; margin:16px 0;";
+  meta.innerHTML = `ID: ${e.id}<br>Code: <strong style="color:#3cff9c">${e.loreCode}</strong><br>Time: ${e.time}`;
+  canvas.appendChild(meta);
+
+  if (e.type === 'text') {
+    const content = document.createElement('div');
+    content.innerHTML = e.content;
+    canvas.appendChild(content);
+  } else {
+    const img = document.createElement('img');
+    img.src = e.img;
+    canvas.appendChild(img);
+    if (e.desc) {
+      const d = document.createElement('div');
+      d.style.marginTop = '14px';
+      d.innerHTML = e.desc;
+      canvas.appendChild(d);
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────────────────────
+
+showViewer();
+buildUnlockedSectors();
+
+// Make sure list is correct even after coming back from archive
+window.addEventListener('focus', buildUnlockedSectors);
+
+// Optional: clean up invalid codes on page load
+buildUnlockedSectors();
+</script>
+</body>
+</html>

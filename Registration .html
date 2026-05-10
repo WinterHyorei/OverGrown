@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coalition Identity Processing</title>
+<!-- Industrial/Geometric UI -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Orbitron:wght@400;900">
+
+<!-- Stenciled Military Aesthetic -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Black+Ops+One">
+
+<!-- Original Tech HUD look -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
+
+<style>
+body{
+    margin:0;
+    background:#050505;
+    color:#00ffd5;
+    font-family:"Courier New", monospace;
+    overflow:hidden;
+}
+.screen{
+    position:fixed;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:40px;
+}
+.title-wrapper{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:20px;
+}
+.logo-bg{
+    position:absolute;
+    width:500px;
+    opacity:0.2;
+    z-index:1;
+pointer-events: none;
+}
+.title-text{
+    position:relative;
+    z-index:2;
+    font-family:"Audiowide", monospace;
+}
+.hidden{ display:none; }
+button{
+    margin-top:20px;
+    padding:10px 30px;
+    background:black;
+    border:1px solid #00ffd5;
+    color:#00ffd5;
+    cursor:pointer;
+    font-family:inherit;
+}
+button:hover{
+    background:#00ffd5;
+    color:black;
+}
+.question-box{
+    max-width:700px;
+}
+.option{
+    display:block;
+    margin:12px auto;
+    padding:10px;
+    border:1px solid #00ffd5;
+    width:420px;
+    cursor:pointer;
+}
+.option:hover{
+    background:#003f38;
+}
+.card{
+    width:420px;
+    background:#0a0a0a;
+    border:2px solid #00ffd5;
+    padding:20px;
+    text-align:left;
+    box-shadow:0 0 20px rgba(0,255,213,0.3);
+}
+.scanlines:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+}
+.card-container{
+    position:fixed;
+	top:50px;
+	right:530px;
+    width:540px;
+    height:265px;
+    margin-bottom:20px;
+}
+.layer{
+    position:absolute;
+    inset:0;
+    border-radius:8px;
+}
+.base-layer{
+    z-index:1;
+}
+.detail-layer{
+    z-index:5;
+    background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAAEqklEQVR4nO3du2odVxSA4TVB7+AqhSuXBoMfxCkCeZRAkiIE8igBF3GfVwgEUrpy4cpPcVJEEsfSuc3Mvsza832VEELaOpdfa58jZk8RcQigiA9fPj1+/O7Fy44rGdI0hWBBEedidTh4iq01TVNERHzTeR0wBLGq6+F2FCxYSazauevxQ4/vYBjFpVg9bGmY5+nt2HzCEitGJFZtNJ2wxIoRzYiVct3u5H66WbC83cvoxKq+JltCsWJ0YtVG9QnrXKx+++X32j8aivvp1x+ffU6s2qk6YYkVo3n62BWrtqoFS6wY0fGEJVbtVdkS3hKrU6M1ZCFWfRSfsMSK0YlVP0WDJVaMTqz6KhYssWJ0YtVfkWCJFaMTq21YHSyxYnRitR2rgiVWjE6stmVxsMSK0YnV9iwKllgxOrHaptnBEitGJ1bbdbf0GlVixYjEatsWbQnFihGJ1fbNDtbT61k9REqsyEyscnAuIbsnVpt0iPj6vpmmyTFf7JtY5SJY7JZY5fPselgOf2SPxCoHExa7J1Z5XLziqAMg2RkP+I0zYcH/xCoBwQKxSmPOIRTuVKArExaQhmABaQgWkIZgAWkIFpCGYAFpCBaQhmABaQgWkIZgAWkIFpCGYAFpCBaQhmABaQgWkIZgAWkIFpCGYAFpCBaQhmABaQgWkIZgAWkIFpCGYAFpCBaQhmABaQgWkIZgAWkIFpCGYAFpCBaQhmABaQgWkIZgAWkIFpCGYAFpCBaQhmABaQgWkMZd7wVAEofeC0hsKvWNTFhwnVitU+z2EywgDVtCmOFwMGzdapqK7QQfCRasUONJmVWLmNsSwkJi9bUWt4dgAWnYEkIZex63mr2wZ8IC0hAsIA3BAtIQLCANwQLSECwgDcEC0hAsIA3BAtIQLCANwQLSECwgDcEC0hAsIA3BAtIQLCANwQLSECxga85ewVSwgC15jNWpU3gEC9iKs7F6OJFHsIAtuBqrCMEC+rspVm9evxUsoKubYxVhwgL6mRWrCMEC+pgdq5//ei9YQHOLYhVhwgLaWhyrCMEC2lkVq3cvXgoW0MTqWEWYsICG1sQqQrCARtbGKkKwgAZKxCpCsIDKSsUqQrCAikrGKkKwgEpKxypCsIAGSsQqQrCAykrFKkKwgIpKxipCsIBKSscqQrCARAQLSOOu9wLYrbNnz8E5Jix6ECsWESxaEysWsyWkpYun+sI1JixaEStWM2HRwslYHf+fThZi25cJi9qGiRX9CRY1iRVFCRa1iBXFCRY1iBVVCBaliRXVCBYliRVVCRaliBXVCRYliBVN+MdR1roYqzev38arV9+2X1VBf7z/s/cSuGfCYo2rk1X2WEVE/PD9d72XwD3BYqmbtoEjTCcfP37uvQTu2RKyxKzXrEaIFttgwmIuL7DTjQmLOa7G6vh0lFH88+/fvZfAPRMWt9plrNiWOROWCwEhVnRlS8jNbonV8SGZo5h72Cf1XAzW4XDwYioRsd9YzWAH0sDVCcslYTkmVvT0LFjTNIkUJ90Sq1G2Tx++fLr6NZ4n7Z2csGwDuWT0WF3iD/ptar0hM4W9NzPsKVbHU9aIv18LT2O19jHzHzZz4cGsiOW1AAAAAElFTkSuQmCC') center/cover no-repeat;
+    pointer-events:none;
+}
+.watermark-layer{
+    width:100%;
+    height:100%;
+    position:absolute;
+    right:-200px;
+    z-index:2;
+    background: url('data:image/png;base64,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') center/60% no-repeat;
+    opacity:0.2;
+    pointer-events:none;
+    mix-blend-mode: normal; /* CHANGED FOR PRINT */
+    filter: none;           /* CHANGED FOR PRINT */
+}
+.info-layer{
+    right: 60px;
+    z-index:4;
+    padding:20px;
+}
+
+.qr-layer{
+    z-index:6;
+    position:absolute;
+    top:132px;
+    right:-305px;
+}
+
+#qrCode{
+    width:103%;
+    height:103%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.qr-layer img{
+    width:122px;
+}
+
+.editor{
+    margin-bottom:20px;
+    color: "black";
+    font-weight: bold;
+    font-family: "Lucida Console";
+}
+input{
+    background:black;
+    border:1px solid #00ffd5;
+    color:#00ffd5;
+    padding:10px;
+    font-family:inherit;
+    margin-top:15px;
+}
+/* Individual text positioning */
+.card-name{
+    position:absolute;
+    top:60px;
+    left:40px;
+    font-size:58px;
+    font-weight: bolder;
+    font-family: "Audiowide";
+}
+.card-id{
+    position:absolute;
+    top:170px;
+    left:40px;
+    font-size:34px;
+    font-weight: bold;
+    font-family: "Orbitron";
+}
+.card-archetype{
+    position:absolute;
+    top:105px;
+    left:45px;
+    font-size:34px;
+    font-family: "Black Ops One";
+}
+
+.card-tier{
+    position:absolute;
+    top:30px;
+    left:370px;
+    font-size:22px;
+    font-weight: bolder;
+    font-family: "Lucida Console";
+}
+
+#phase3{
+    background: url('REGISTRY LOGO.png') center/cover no-repeat;
+}
+.card-name,
+.card-archetype,
+.card-tier,
+.card-id{
+    color:#00ffd5;
+    text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px 1px 0 #000,
+     1px 1px 0 #000,
+     0 0 6px rgba(0,255,213,0.6);
+}
+
+/* ================= PRINT SHEET ================= */
+
+#printSheet{
+    position:absolute;
+    margin-top:20px;
+    display:grid;
+    grid-template-columns: repeat(2, 85.6mm);
+    gap:10mm;
+	top:40px;
+	left:30px;
+}
+
+.print-card {
+    width: 85.6mm;
+    height: 48mm;
+    /* Black, thin border to act as a precise cutting line */
+    border: 0.5pt solid #000; 
+    overflow: hidden;
+    background-color: #000;
+    /* This ensures the image or content stays crisp and fills the guide */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.print-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* New class for the blank "thickener" backings */
+.card-backing {
+    width: 85.6mm;
+    height: 48mm;
+    border: 0.5pt solid #000;
+    background-color: transparent; /* Saves ink while providing a cut guide */
+}
+
+
+/* Hidden on screen by default */
+/* Hidden on screen */
+#print-overlay {
+    display: none;
+}
+
+@media print {
+    /* Hide the entire interactive site */
+    body * {
+        visibility: hidden;
+        margin: 0;
+    }
+
+    /* Show only the print overlay */
+    #print-overlay, #print-overlay * {
+        visibility: visible;
+    }
+
+    #print-overlay {
+        display: block;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        background: white; /* Clean background for printing */
+    }
+
+    .print-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 95mm);
+        grid-template-rows: repeat(3, 50mm);
+        gap: 5mm; /* Cutting clearance */
+        justify-content: center;
+        margin-top: 15mm;
+    }
+
+    .print-item {
+        width: 95mm;
+        height: 50mm;
+        border: 0.4pt solid #000; /* Thin black cutting guide */
+        box-sizing: border-box;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Row 1: The Artwork */
+    .front-card canvas, .front-card img, .back-card-placeholder img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Rows 2 & 3: Thickeners and Backs */
+    .back-card-placeholder, .thickener {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        font-family: "Courier New", monospace;
+        font-size: 10px;
+        background: #fff;
+    }
+	
+}
+
+.buttons {
+    position: absolute;
+    top: 150px;
+    right: 200px;
+    display: flex;
+    flex-direction: column; /* Stacks them vertically */
+    gap: 20px;             /* Adds space between the buttons */
+    z-index: 100;          /* Ensures they stay above the background layers */
+}
+
+/* Optional: Since they are now in the corner, you might want to 
+   remove the auto-margin you had on standard buttons */
+.buttons button {
+    margin-top: 0; 
+    width: 200px; /* Optional: makes them a uniform width */
+    text-align: left;
+}
+
+.card-back-design {
+    width: 85.6mm;
+    height: 48mm;
+    /* Black, thin border to act as a precise cutting line */
+    border: 0.5pt solid #000; 
+    overflow: hidden;
+    background-color: #000;
+    /* This ensures the image or content stays crisp and fills the guide */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-back-design img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+
+</style>
+</head>
+<body class="scanlines">
+
+<!-- PHASE 0 -->
+<div id="phase0" class="screen">
+<div class="title-wrapper">
+    <img src="logo.png" class="logo-bg">
+    <h1 class="title-text">GLOBAL WALL COALITION</h1>
+</div>
+    <p>IDENTITY FABRICATION PROTOCOL</p>
+    <p>Unregistered visitor detected.</p>
+    <button onclick="startIndexing()">PROCEED WITH INDEXING</button>
+</div>
+
+<!-- PHASE 1 -->
+<div id="phase1" class="screen hidden">
+    <div class="question-box">
+        <h2 id="questionTitle"></h2>
+        <div id="optionsContainer"></div>
+    </div>
+</div>
+
+<!-- PHASE 2 -->
+<div id="phase2" class="screen hidden">
+    <h1>CLASSIFICATION COMPLETE</h1>
+    <h2 id="resultArchetype"></h2>
+    <p id="resultTier"></p>
+    <button onclick="generateCard()">FABRICATE IDENTIFICATION</button>
+</div>
+
+<!-- DESIGNATION MODAL -->
+<div id="designationModal" class="screen hidden">
+    <h2>ENTER DESIGNATION</h2>
+    <input type="text" id="designationInput" maxlength="16" placeholder="Enter your name">
+    <button onclick="confirmDesignation()">CONFIRM</button>
+</div>
+
+<!-- PHASE 3 -->
+<div id="phase3" class="screen hidden">
+<div class="card-container" id="cardContainer">
+    <!-- BASE LAYER -->
+    <div class="layer base-layer" id="baseLayer"></div>
+    <div class="layer watermark-layer"></div>
+    <!-- DETAIL LAYER -->
+    <div class="layer detail-layer"></div>
+<!-- INFO LAYER -->
+<div class="layer info-layer">
+    <div id="cardName" class="card-name"></div>
+    <div id="cardID" class="card-id"></div>
+    <div id="cardArchetype" class="card-archetype"></div>
+    <div id="cardTier" class="card-tier"></div>
+</div>
+<div class="layer qr-layer">
+    <div id="qrCode"></div>
+</div>
+</div>
+<div id="printSheet"></div>
+
+
+
+<div class="buttons">
+<button onclick="printCard()">EXTRACT ID CARD</button>
+<button onclick="printSheet()">PRINT SHEET</button>
+<div class="editor">
+    <p>Adjust Identity Tone</p>
+    <input type="range" id="shadeSlider" min="30" max="70" value="50">
+</div>
+
+
+
+</div>
+</div>
+
+<div id="print-overlay">
+    <div class="print-grid">
+        <!-- Row 1: Front and Back -->
+        <div class="print-item front-card">
+            <img src="GWC-743A6E.jpg" alt="ID Front">
+        </div>
+        <div class="print-item back-card-placeholder">
+            <img src="IDBack.png" alt="ID Back">
+        </div>
+
+        <!-- Row 2: Thickeners -->
+        <div class="print-item thickener"></div>
+        <div class="print-item thickener"></div>
+
+        <!-- Row 3: Thickeners -->
+        <div class="print-item thickener"></div>
+        <div class="print-item thickener"></div>
+    </div>
+</div>
+
+<!-- PRINT SHEET -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+let currentQuestion = 0;
+let scores = { Archivist:0, Extraction:0, Strategist:0, GunMen:0 };
+const questions = [ /* ALL YOUR ORIGINAL QUESTIONS ARE HERE UNCHANGED */ 
+{ text:"When confronted with chaos, you first:", options:[ {text:"Observe silently", type:"Archivist"}, {text:"Charge forward", type:"Extraction"}, {text:"Form a plan", type:"Strategist"}, {text:"Stand your ground", type:"GunMen"} ] },
+{ text:"Your greatest strength lies in:", options:[ {text:"Memory", type:"Archivist"}, {text:"Speed", type:"Extraction"}, {text:"Strategy", type:"Strategist"}, {text:"Endurance", type:"GunMen"} ] },
+{ text:"In a collapsing system, you would:", options:[ {text:"Record it", type:"Archivist"}, {text:"Extract survivors", type:"Extraction"}, {text:"Stabilize it", type:"Strategist"}, {text:"Defend it", type:"GunMen"} ] },
+{ text:"Others rely on you for:", options:[ {text:"Insight", type:"Archivist"}, {text:"Action", type:"Extraction"}, {text:"Direction", type:"Strategist"}, {text:"Protection", type:"GunMen"} ] },
+{ text:"You are most fulfilled when:", options:[ {text:"Discovering truth", type:"Archivist"}, {text:"Completing missions", type:"Extraction"}, {text:"Outthinking problems", type:"Strategist"}, {text:"Holding the line", type:"GunMen"} ] },
+{ text:"A threat approaches. You:", options:[ {text:"Study it", type:"Archivist"}, {text:"Intercept it", type:"Extraction"}, {text:"Predict it", type:"Strategist"}, {text:"Face it directly", type:"GunMen"} ] },
+{ text:"Information to you is:", options:[ {text:"Sacred", type:"Archivist"}, {text:"Useful", type:"Extraction"}, {text:"Power", type:"Strategist"}, {text:"A tool", type:"GunMen"} ] },
+{ text:"Leadership should:", options:[ {text:"Document history", type:"Archivist"}, {text:"Lead the charge", type:"Extraction"}, {text:"Guide from above", type:"Strategist"}, {text:"Protect the people", type:"GunMen"} ] },
+{ text:"If isolated, you would:", options:[ {text:"Archive knowledge", type:"Archivist"}, {text:"Move constantly", type:"Extraction"}, {text:"Strategize", type:"Strategist"}, {text:"Secure territory", type:"GunMen"} ] },
+{ text:"The Coalition needs you because:", options:[ {text:"You preserve", type:"Archivist"}, {text:"You retrieve", type:"Extraction"}, {text:"You foresee", type:"Strategist"}, {text:"You protect", type:"GunMen"} ] }
+];
+
+function startIndexing(){
+    document.getElementById("phase0").classList.add("hidden");
+    document.getElementById("phase1").classList.remove("hidden");
+    showQuestion();
+}
+function showQuestion(){
+    let q = questions[currentQuestion];
+    document.getElementById("questionTitle").innerText = "Question " + (currentQuestion+1) + " / " + questions.length + "\n\n" + q.text;
+    let container = document.getElementById("optionsContainer");
+    container.innerHTML="";
+    q.options.forEach(option=>{
+        let div = document.createElement("div");
+        div.className="option";
+        div.innerText=option.text;
+        div.onclick=()=>{ scores[option.type]++; nextQuestion(); };
+        container.appendChild(div);
+    });
+}
+function nextQuestion(){
+    currentQuestion++;
+    if(currentQuestion < questions.length){
+        showQuestion();
+    } else {
+        classify();
+    }
+}
+let finalArchetype="";
+let finalTier="";
+function classify(){
+    document.getElementById("phase1").classList.add("hidden");
+    finalArchetype = Object.keys(scores).reduce((a,b)=> scores[a]>scores[b]?a:b);
+    let tierMap = { Archivist:"I", Extraction:"II", Strategist:"III", GunMen:"IV" };
+    finalTier = tierMap[finalArchetype];
+    document.getElementById("resultArchetype").innerText = "FIELD ROLE: " + finalArchetype;
+    document.getElementById("resultTier").innerText = "CLEARANCE TIER: " + finalTier;
+    document.getElementById("phase2").classList.remove("hidden");
+}
+function generateCard(){
+    document.getElementById("phase2").classList.add("hidden");
+    document.getElementById("designationModal").classList.remove("hidden");
+}
+let generatedID = "";
+function confirmDesignation(){
+    let name = document.getElementById("designationInput").value;
+    if(!name) return;
+    generatedID = "GWC-" + Math.random().toString(16).substring(2,8).toUpperCase();
+    document.getElementById("designationModal").classList.add("hidden");
+    document.getElementById("phase3").classList.remove("hidden");
+    document.getElementById("cardName").innerText = name;
+    document.getElementById("cardID").innerText = generatedID;
+    document.getElementById("cardArchetype").innerText = finalArchetype;
+    document.getElementById("cardTier").innerText = "Tier " + finalTier;
+    applyRoleBaseColor();
+    generateQRCode();
+    localStorage.setItem("coalitionProfile", JSON.stringify({ id:generatedID, name:name, role:finalArchetype, tier:finalTier }));
+    const nameElement = document.getElementById("cardName");
+    if(name.length > 12){ nameElement.style.fontSize = "32px"; } else { nameElement.style.fontSize = "42px"; }
+}
+function applyRoleBaseColor(){
+    let hue;
+    switch(finalArchetype){
+        case "Archivist": hue = 210; break;
+        case "Strategist": hue = 120; break;
+        case "Extraction": hue = 5; break;
+        case "GunMen": hue = 275; break;
+    }
+    document.documentElement.style.setProperty('--roleHue', hue + 'deg');
+    updateColor(hue, 50);
+    const slider = document.getElementById("shadeSlider");
+    slider.oninput = function(){ updateColor(hue, this.value); };
+}
+function updateColor(hue, lightness){
+    document.getElementById("baseLayer").style.background = `hsl(${hue}, 70%, ${lightness}%)`;
+}
+function returnToArchive(){
+    window.location.href="New index.html";
+}
+
+/* ==================== FIXED PRINT CARD ==================== */
+function printCard(){
+    const card = document.getElementById("cardContainer");
+    if (!card) {
+        alert("Card container not found!");
+        return;
+    }
+
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = "GENERATING...";
+    btn.disabled = true;
+
+    html2canvas(card, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,          // ← This helps with local files
+        backgroundColor: "#0a0a0a",
+        logging: true,             // Shows more info in console
+        width: card.offsetWidth,
+        height: card.offsetHeight,
+        scrollX: 0,
+        scrollY: 0
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `${generatedID || "GWC_CARD"}.png`;
+        link.href = canvas.toDataURL("image/png", 1.0);
+        link.click();
+
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }).catch(err => {
+        console.error("html2canvas error:", err);
+        alert("Still tainted.\n\nBest solution: Use solid color fallbacks for detail2.png and logo.png (see below).");
+        btn.textContent = originalText;
+        btn.disabled = false;
+    });
+}
+
+/* ==================== PRINT SHEET ==================== */
+
+let uploadedCards = [];
+
+
+
+function renderPrintSheet(){
+
+    const sheet = document.getElementById("printSheet");
+    sheet.innerHTML = "";
+
+    uploadedCards.forEach(img => {
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "print-card";
+
+        const newImg = document.createElement("img");
+        newImg.src = img.src;
+        newImg.style.width = "100%";
+        newImg.style.height = "100%";
+        newImg.style.objectFit = "contain";
+
+        wrapper.appendChild(newImg);
+        sheet.appendChild(wrapper);
+    });
+}
+
+document.getElementById("cardUpload").onchange = function(e){
+    const file = e.target.files[0];
+
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    img.onload = () => {
+        uploadedCards.push(img);
+        renderPrintSheet(); // instant update
+    };
+};
+
+async function printSheet() {
+    const card = document.getElementById("cardContainer");
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = "EXTRACTING DATA...";
+    btn.disabled = true;
+
+    try {
+        const canvas = await html2canvas(card, {
+            scale: 3,
+            useCORS: true,
+            backgroundColor: "#0a0a0a"
+        });
+
+        const frontSlot = document.querySelector('.front-card');
+        frontSlot.innerHTML = ""; 
+        
+        const img = new Image();
+        img.src = canvas.toDataURL("image/png");
+        
+        img.onload = () => {
+            frontSlot.appendChild(img);
+            
+            // Give the browser 500ms to render the image in the DOM 
+            // before opening the print dialog
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                window.print();
+            }, 500);
+        };
+
+    } catch (err) {
+        console.error("Print error:", err);
+        btn.textContent = "EXTRACTION FAILED";
+        btn.disabled = false;
+    }
+}
+
+/* ==================== FIXED QR CODE ==================== */
+function generateQRCode(){
+    const baseURL = "https://winterhyorei.github.io/OverGrown/";
+    const encodedData = `${baseURL}?id=${generatedID}&role=${finalArchetype}&tier=${finalTier}`;
+    
+    const qrContainer = document.getElementById("qrCode");
+    qrContainer.innerHTML = "";
+
+    new QRCode(qrContainer, {
+        text: encodedData,
+        width: 112,
+        height: 112,
+        colorDark: "#a0ffea",      // Soft cyan-white (much better contrast)
+        colorLight: "#0a0a0a",     // Dark card background
+        correctLevel: QRCode.CorrectLevel.H
+    });
+}
+</script>
+</body>
+</html>
