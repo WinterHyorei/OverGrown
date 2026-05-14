@@ -108,6 +108,89 @@
     padding: 16px;
     background: rgba(10,25,18,.55);
   }
+  
+  /* ─────────────────────────────────────────────
+   CONTENT FULLSCREEN
+───────────────────────────────────────────── */
+
+#content {
+  position: relative;
+  transition:
+    width 0.35s ease,
+    height 0.35s ease,
+    inset 0.35s ease,
+    border-radius 0.35s ease,
+    background 0.35s ease;
+}
+
+/* Fullscreen toggle button */
+#contentFullscreenBtn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 50;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 8px;
+
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+
+  border: 1px solid #4caf75;
+  color: #cffff0;
+
+  font-size: 18px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all .25s ease;
+}
+
+#contentFullscreenBtn {
+  position: sticky;
+  float: right;
+}
+
+#contentFullscreenBtn:hover {
+  background: rgba(60,255,156,0.18);
+  transform: scale(1.05);
+}
+
+/* FULLSCREEN MODE */
+#content.content-fullscreen {
+
+  position: fixed;
+
+  inset: 0;
+
+  width: 100vw !important;
+  height: 100vh !important;
+
+  z-index: 99999;
+
+  margin: 0;
+  border-radius: 0;
+
+  background: rgba(5,10,8,0.98);
+}
+
+/* Ensure body doesn't scroll behind fullscreen */
+body.content-fs-active {
+  overflow: hidden;
+}
+
+#content.content-fullscreen .image-view-container {
+  height: calc(100vh - 120px);
+}
+
+#content.content-fullscreen .image-left img {
+  max-height: 85vh;
+}
 
   #codeInputWrap {
     padding: 14px;
@@ -483,6 +566,163 @@
   background: #6ed89a;
 }
 
+/* ─────────────────────────────────────────────
+   READER MODE
+───────────────────────────────────────────── */
+
+body.reader-mode {
+  background: #f3f3f0 !important;
+  color: #1f1f1f !important;
+  font-family: "Segoe UI", "Inter", sans-serif;
+}
+
+body.reader-mode::after {
+  display: none;
+}
+
+/* Shell becomes paper-like */
+body.reader-mode #shell {
+  background: #fafaf7;
+  border: 1px solid #d0d0d0;
+  box-shadow: 0 0 30px rgba(0,0,0,0.08);
+}
+
+/* Content area */
+body.reader-mode #content {
+  background: transparent;
+  border: none;
+  color: #222;
+  padding: 40px;
+}
+
+/* Main text readability */
+body.reader-mode #artifactBody {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 18px;
+  line-height: 1.65em;
+  letter-spacing: 0.2px;
+  color: #222;
+}
+
+/* Header adjustments */
+body.reader-mode #viewerHeader,
+body.reader-mode #header {
+  background: #ecece8;
+  color: #222;
+  border-color: #cfcfcf;
+}
+
+/* Inputs */
+body.reader-mode #codeInput {
+  background: white;
+  color: #222;
+  border: 1px solid #aaa;
+}
+
+/* Buttons */
+body.reader-mode button {
+  background: white;
+  color: #222;
+  border: 1px solid #aaa;
+}
+
+body.reader-mode button:hover {
+  background: #e7e7e7;
+}
+
+/* Images */
+body.reader-mode img {
+  border: 1px solid #ccc;
+  background: white;
+}
+
+/* Split image viewer */
+body.reader-mode .image-left {
+  background: #efefef;
+  border: 1px solid #d0d0d0;
+}
+
+body.reader-mode .desc-right {
+  background: #f9f9f9;
+  border: 1px solid #d0d0d0;
+  color: #222;
+}
+
+/* Lore redaction still visible */
+body.reader-mode .redacted {
+  background: #111;
+  color: #111;
+  border-radius: 2px;
+  padding: 0 6px;
+}
+
+/* Unlocked sectors */
+body.reader-mode .sector-item {
+  background: rgba(0,0,0,0.03);
+  border: 1px solid #ccc;
+  color: #222;
+}
+
+body.reader-mode .code-line {
+  color: #444;
+}
+
+/* Reader Mode + Fullscreen Fix */
+body.reader-mode #content.content-fullscreen {
+  background: #f3f3f0 !important;
+}
+
+/* Make artifact body feel like real paper */
+body.reader-mode #content.content-fullscreen  {
+
+  position: fixed;
+
+  inset: 0;
+
+  width: 100vw !important;
+  height: 100vh !important;
+
+  z-index: 99999;
+
+  margin: 0;
+  border-radius: 0;
+
+  background: rgba(5,10,8,0.98);
+}
+
+#contentFullscreenBtn {
+  position: absolute;
+  bottom: 30px;
+  right: 32px;
+  z-index: 50;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 8px;
+
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+
+  border: 1px solid #4caf75;
+  color: #cffff0;
+
+  font-size: 18px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all .25s ease;
+}
+
+
+#contentFullscreenBtn {
+  position: sticky;
+  float: right;
+}
 
 </style>
 </head>
@@ -507,6 +747,7 @@
       <div id="artifactWindow">
         <div id="artifactHeader">AWAITING ARTIFACT CODE…</div>
         <div id="artifactBody"></div>
+		<button id="contentFullscreenBtn">⛶</button>
       </div>
     </div>
 
@@ -514,8 +755,9 @@
       <button class="exit-index" onclick="window.location.href = '/index.html';">EXIT</button>
       <input id="codeInput" placeholder="PASTE OR TYPE ARTIFACT CODE" autocomplete="off" />
       <button id="decodeBtn">DECODE</button>
-      <button id="refreshBtn">REFRESH</button>
-    </div>
+	  <button id="refreshBtn">REFRESH</button>
+	  <button id="readerToggleBtn">STANDARD ARCHIVE FORMAT</button>  
+	  </div>
 
     <div id="unlockedSectors" style="margin-top:16px; font-size:13px; opacity:0.9;"></div>
   </div>
@@ -623,9 +865,11 @@ function glitchText(text) {
   return (text || "").replace(/\[REDACTED\]/gi, '<span class="redacted">██████</span>');
 }
 
-function loadViewerCode(manualCode = null) {
+async function loadViewerCode(manualCode = null) {
+
   const input = document.getElementById('codeInput');
   const code = manualCode || (input.value || "").trim();
+
   if (!code) return;
 
   if (code.toLowerCase() === ARCHIVE_PASSWORD) {
@@ -634,66 +878,159 @@ function loadViewerCode(manualCode = null) {
     return;
   }
 
-  let viewed = JSON.parse(localStorage.getItem("og_viewed_codes") || "[]");
-  const entry = findEntryByCode(code);
   const header = document.getElementById('artifactHeader');
   const body = document.getElementById('artifactBody');
 
   body.innerHTML = '';
 
-  if (!entry) {
-    // ── GHOST CODE DETECTED ──
-    header.textContent = "ACCESS DENIED";
-    body.innerHTML = `<span class="glitch">ARTIFACT NOT FOUND OR SEALED</span>`;
+  let viewed = JSON.parse(localStorage.getItem("og_viewed_codes") || "[]");
 
-    // Auto-remove from viewed list after 3 seconds
+  // ─────────────────────────────────────────
+  // STEP 1 — SEARCH LOCAL STORAGE
+  // ─────────────────────────────────────────
+
+  let entry = findEntryByCode(code);
+
+  // ─────────────────────────────────────────
+  // STEP 2 — FETCH STATIC JSON
+  // ─────────────────────────────────────────
+
+  if (!entry) {
+    try {
+
+      const response = await fetch(`/archive/data/${code}.json`);
+
+      if (response.ok) {
+
+        entry = await response.json();
+
+        // Cache locally after fetch
+        if (entry?.vial) {
+
+          const localData = getVialData(entry.vial);
+
+          localData[entry.id] = entry;
+
+          saveVialData(entry.vial, localData);
+        }
+      }
+
+    } catch(err) {
+      console.error("FETCH FAILURE", err);
+    }
+  }
+
+  // ─────────────────────────────────────────
+  // NOT FOUND
+  // ─────────────────────────────────────────
+
+  if (!entry) {
+
+    header.textContent = "ACCESS DENIED";
+
+    body.innerHTML = `
+      <span class="glitch">
+        ARTIFACT NOT FOUND OR SEALED
+      </span>
+    `;
+
     setTimeout(() => {
+
       viewed = viewed.filter(c => c !== code);
-      localStorage.setItem("og_viewed_codes", JSON.stringify(viewed));
-      buildUnlockedSectors();           // Refresh the list → ghost disappears
-      // Optional: visual feedback in body
-      body.innerHTML += `<div style="margin-top:12px; color:#ff9999; font-size:13px;">(Entry removed from memory)</div>`;
+
+      localStorage.setItem(
+        "og_viewed_codes",
+        JSON.stringify(viewed)
+      );
+
+      buildUnlockedSectors();
+
+      body.innerHTML += `
+        <div style="margin-top:12px; color:#ff9999; font-size:13px;">
+          (Entry removed from memory)
+        </div>
+      `;
+
     }, 3000);
 
     return;
   }
 
-  // Valid entry → show it normally
+  // ─────────────────────────────────────────
+  // RENDER ENTRY
+  // ─────────────────────────────────────────
+
   header.textContent = `RECOVERED ENTRY — ${entry.loreCode}`;
 
   const meta = document.createElement('div');
-  meta.style.cssText = "opacity:0.65; font-size:13px; margin-bottom:14px; line-height:1.4;";
-  meta.innerHTML = `Artifact ID: ${entry.id}<br>Timestamp: ${entry.time}<br>Integrity: STABLE`;
+
+  meta.style.cssText = `
+    opacity:0.65;
+    font-size:13px;
+    margin-bottom:14px;
+    line-height:1.4;
+  `;
+
+  meta.innerHTML = `
+    Artifact ID: ${entry.id}<br>
+    Timestamp: ${entry.time}<br>
+    Integrity: STABLE
+  `;
+
   body.appendChild(meta);
 
   if (entry.type === 'text') {
+
     const div = document.createElement('div');
+
     div.innerHTML = glitchText(entry.content);
+
     body.appendChild(div);
+
   } else {
+
     const container = document.createElement('div');
     container.className = 'image-view-container';
+
     const left = document.createElement('div');
     left.className = 'image-left';
+
     const img = document.createElement('img');
     img.src = entry.img;
+
     left.appendChild(img);
+
     const right = document.createElement('div');
     right.className = 'desc-right';
-    right.innerHTML = entry.desc ? glitchText(entry.desc) : '<em style="opacity:0.6;">No description available.</em>';
+
+    right.innerHTML = entry.desc
+      ? glitchText(entry.desc)
+      : '<em style="opacity:0.6;">No description available.</em>';
+
     container.append(left, right);
+
     body.appendChild(container);
   }
 
-  // Add to viewed list if new
+  // ─────────────────────────────────────────
+  // TRACK VIEWED
+  // ─────────────────────────────────────────
+
   if (!viewed.includes(code)) {
+
     viewed.push(code);
-    localStorage.setItem("og_viewed_codes", JSON.stringify(viewed));
+
+    localStorage.setItem(
+      "og_viewed_codes",
+      JSON.stringify(viewed)
+    );
+
     buildUnlockedSectors();
   }
 
   if (!manualCode) input.value = "";
 }
+
 function refreshViewer() {
   document.getElementById('codeInput').value = "";
   document.getElementById('artifactHeader').textContent = "AWAITING ARTIFACT CODE…";
@@ -708,6 +1045,67 @@ document.getElementById('codeInput').onkeydown = e => {
     loadViewerCode();
   }
 };
+
+// ─────────────────────────────────────────────
+// CONTENT FULLSCREEN
+// ─────────────────────────────────────────────
+
+const content = document.getElementById("content");
+const fsBtn = document.getElementById("contentFullscreenBtn");
+
+fsBtn.onclick = () => {
+
+  const active = content.classList.toggle("content-fullscreen");
+
+  document.body.classList.toggle(
+    "content-fs-active",
+    active
+  );
+
+  // Swap icon
+  fsBtn.textContent = active ? "🡼" : "⛶";
+};
+
+document.addEventListener("keydown", e => {
+
+  if (
+    e.key === "Escape" &&
+    content.classList.contains("content-fullscreen")
+  ) {
+
+    content.classList.remove("content-fullscreen");
+
+    document.body.classList.remove(
+      "content-fs-active"
+    );
+
+    fsBtn.textContent = "⛶";
+  }
+});
+
+// ─────────────────────────────────────────────
+// READER MODE
+// ─────────────────────────────────────────────
+
+const readerBtn = document.getElementById("readerToggleBtn");
+
+readerBtn.onclick = () => {
+  document.body.classList.toggle("reader-mode");
+
+  const enabled = document.body.classList.contains("reader-mode");
+
+  readerBtn.textContent = enabled
+    ? "TERMINAL ARCHIVE FORMAT"
+    : "STANDARD ARCHIVE FORMAT";
+
+  localStorage.setItem("og_reader_mode", enabled ? "1" : "0");
+};
+
+// Persist preference
+if (localStorage.getItem("og_reader_mode") === "1") {
+  document.body.classList.add("reader-mode");
+  readerBtn.textContent = "TERMINAL ARCHIVE FORMAT";
+}
 
 function buildUnlockedSectors() {
   const container = document.getElementById('unlockedSectors');
@@ -844,13 +1242,43 @@ function openVial(c) {
   entries.forEach(e => {
     const item = document.createElement('div');
     item.className = 'entry-list-item';
-    item.innerHTML = `
-      <div><strong>${e.id}</strong> — ${e.name||'(unnamed)'}<br><small>${e.time}</small></div>
-      <div style="display:flex; gap:12px;">
-        <span style="color:#8fffd3;cursor:pointer;" onclick="event.stopPropagation(); navigator.clipboard.writeText('${e.loreCode}'); alert('Code copied')">📋</span>
-        <span style="color:#ff9999;cursor:pointer;" onclick="event.stopPropagation(); confirmDelete('${e.id}')">✖</span>
-      </div>
-    `;
+item.innerHTML = `
+  <div>
+    <strong>${e.id}</strong> — ${e.name||'(unnamed)'}
+    <br>
+    <small>${e.time}</small>
+  </div>
+
+  <div style="display:flex; gap:12px; align-items:center;">
+
+    <!-- COPY CODE -->
+    <span
+      style="color:#8fffd3;cursor:pointer;"
+      onclick="event.stopPropagation();
+      navigator.clipboard.writeText('${e.loreCode}');
+      alert('Code copied')">
+      📋
+    </span>
+
+    <!-- EXPORT JSON -->
+    <span
+      style="color:#8fbfff;cursor:pointer;"
+      onclick="event.stopPropagation();
+      exportEntry('${e.id}')">
+      ⬇
+    </span>
+
+    <!-- DELETE -->
+    <span
+      style="color:#ff9999;cursor:pointer;"
+      onclick="event.stopPropagation();
+      confirmDelete('${e.id}')">
+      ✖
+    </span>
+
+  </div>
+`;
+
     item.onclick = () => viewEntry(e);
     canvas.appendChild(item);
   });
@@ -1033,6 +1461,43 @@ function saveImage(imgData) {
   saveVialData(activeVial, d);
   updateVialFill(activeVial);
   openVial(activeVial);
+}
+
+// ─────────────────────────────────────────────
+// EXPORT ENTRY AS JSON
+// ─────────────────────────────────────────────
+
+function exportEntry(entryId) {
+  const data = getVialData(activeVial);
+  const entry = data[entryId];
+
+  if (!entry) {
+    alert("Entry not found.");
+    return;
+  }
+
+  // include vial metadata
+  const exportData = {
+    ...entry,
+    vial: activeVial
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(exportData, null, 2)],
+    { type: "application/json" }
+  );
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+
+  // filename = loreCode.json
+  a.download = `${entry.loreCode}.json`;
+
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(a.href);
 }
 
 function viewEntry(e) {
