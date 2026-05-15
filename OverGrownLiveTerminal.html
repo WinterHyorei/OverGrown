@@ -724,6 +724,245 @@ body.reader-mode #content.content-fullscreen  {
   float: right;
 }
 
+
+
+/* =========================================================
+   MOBILE RESPONSIVE UPGRADE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  /* ─────────────────────────────
+     GLOBAL
+  ───────────────────────────── */
+
+  body {
+    font-size: 14px;
+    overflow-x: hidden;
+  }
+
+  #viewerHeader,
+  #archiveHeader {
+    padding: 0 12px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    flex-wrap: wrap;
+    gap: 6px;
+    height: auto;
+    min-height: 42px;
+  }
+
+  /* ─────────────────────────────
+     VIEWER SHELL
+  ───────────────────────────── */
+
+  #shell {
+    width: 100%;
+    height: auto;
+    min-height: calc(100vh - 60px);
+
+    margin: 0;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  #header {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  #content {
+    padding: 10px;
+  }
+
+  body.reader-mode #content {
+    padding: 20px;
+  }
+
+  /* ─────────────────────────────
+     IMAGE VIEWER
+  ───────────────────────────── */
+
+  .image-view-container {
+    flex-direction: column;
+    gap: 14px;
+    min-height: auto;
+  }
+
+  .image-left {
+    max-width: 100%;
+    width: 100%;
+    min-height: 220px;
+  }
+
+  .image-left img {
+    max-height: 45vh;
+  }
+
+  .desc-right {
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* ─────────────────────────────
+     INPUT AREA
+  ───────────────────────────── */
+
+  #codeInputWrap {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #codeInput {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 16px; /* prevents iOS zoom */
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  /* Keep replay buttons smaller */
+  .code-line button {
+    width: auto;
+    margin-left: 10px;
+    padding: 6px 10px;
+  }
+
+  /* ─────────────────────────────
+     ARCHIVE LAYOUT
+  ───────────────────────────── */
+
+  #archive-app {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  #sidebar {
+    height: auto;
+    max-height: 260px;
+  }
+
+  #vialRack {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+  }
+
+  .vial {
+    min-width: 180px;
+    flex-shrink: 0;
+  }
+
+  #canvas {
+    height: auto;
+    min-height: 60vh;
+  }
+
+  /* ─────────────────────────────
+     EDITOR
+  ───────────────────────────── */
+
+  #eContent,
+  #eDesc {
+    min-height: 180px !important;
+    max-height: none !important;
+  }
+
+  input {
+    font-size: 16px;
+  }
+
+  /* ─────────────────────────────
+     FULLSCREEN
+  ───────────────────────────── */
+
+  #content.content-fullscreen {
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  #content.content-fullscreen .image-left img {
+    max-height: 40vh;
+  }
+
+  /* ─────────────────────────────
+     READER MODE
+  ───────────────────────────── */
+
+  body.reader-mode #artifactBody {
+    font-size: 16px;
+    line-height: 1.75;
+    max-width: 100%;
+  }
+
+  body.reader-mode #content.content-fullscreen #artifactWindow {
+    padding: 20px;
+  }
+
+  /* ─────────────────────────────
+     MODALS
+  ───────────────────────────── */
+
+  .confirmBox {
+    width: 90%;
+    min-width: auto;
+    box-sizing: border-box;
+  }
+
+  .confirmButtons {
+    flex-direction: column;
+  }
+
+  .confirmButtons button {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   EXTRA SMALL DEVICES
+========================================================= */
+
+@media (max-width: 480px) {
+
+  #viewerHeader,
+  #archiveHeader {
+    font-size: 10px;
+  }
+
+  #header {
+    font-size: 10px;
+  }
+
+  body.reader-mode #artifactBody {
+    font-size: 15px;
+  }
+
+  .image-left {
+    min-height: 180px;
+  }
+
+  .vial {
+    min-width: 150px;
+  }
+
+  #contentFullscreenBtn {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
 </style>
 </head>
 <body>
